@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation - Jirani</title>
+    <style>
+        /* Reset styles */
+        body, table, td, p, a, li, blockquote {
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+        }
+        table, td {
+            mso-table-lspace: 0pt;
+            mso-table-rspace: 0pt;
+        }
+        img {
+            -ms-interpolation-mode: bicubic;
+            border: 0;
+            height: auto;
+            line-height: 100%;
+            outline: none;
+            text-decoration: none;
+        }
+
+        /* Base styles */
+        body {
+            margin: 0 !important;
+            padding: 0 !important;
+            background-color: #f4f6f9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+            padding: 30px 20px;
+            text-align: center;
+        }
+        
+        .header img {
+            max-width: 120px;
+            height: auto;
+        }
+        
+        .header h1 {
+            color: #ffffff;
+            margin: 15px 0 0 0;
+            font-size: 28px;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+        
+        .content {
+            padding: 40px 30px;
+            line-height: 1.6;
+            color: #333333;
+        }
+        
+        .content h2 {
+            color: #28a745;
+            margin: 0 0 20px 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .content p {
+            margin: 0 0 16px 0;
+            font-size: 16px;
+        }
+        
+        .button {
+            display: inline-block;
+            padding: 14px 28px;
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: #ffffff !important;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 16px;
+            margin: 20px 0;
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .order-summary {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+        
+        .order-header {
+            background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+            color: #ffffff;
+            padding: 15px 20px;
+            margin: -25px -25px 20px -25px;
+            border-radius: 8px 8px 0 0;
+            text-align: center;
+        }
+        
+        .order-number {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 0;
+        }
+        
+        .order-date {
+            font-size: 14px;
+            margin: 5px 0 0 0;
+            opacity: 0.9;
+        }
+        
+        .order-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        .order-table th,
+        .order-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .order-table th {
+            background-color: #e9ecef;
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .order-table .product-image {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        
+        .order-table .product-name {
+            font-weight: 600;
+            color: #007bff;
+        }
+        
+        .order-table .price {
+            font-weight: 600;
+            color: #28a745;
+        }
+        
+        .order-total {
+            background-color: #e7f3ff;
+            border: 2px solid #007bff;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .total-amount {
+            font-size: 28px;
+            font-weight: bold;
+            color: #007bff;
+            margin: 0;
+        }
+        
+        .delivery-info {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .delivery-info h3 {
+            margin: 0 0 15px 0;
+            color: #856404;
+            font-size: 18px;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .info-card {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 15px;
+        }
+        
+        .info-card h4 {
+            margin: 0 0 10px 0;
+            color: #007bff;
+            font-size: 16px;
+        }
+        
+        .info-card p {
+            margin: 0;
+            font-size: 14px;
+            color: #666666;
+        }
+        
+        .status-timeline {
+            margin: 30px 0;
+        }
+        
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+        }
+        
+        .timeline-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 18px;
+        }
+        
+        .timeline-icon.completed {
+            background-color: #28a745;
+            color: #ffffff;
+        }
+        
+        .timeline-icon.current {
+            background-color: #007bff;
+            color: #ffffff;
+        }
+        
+        .timeline-icon.pending {
+            background-color: #6c757d;
+            color: #ffffff;
+        }
+        
+        .timeline-content h5 {
+            margin: 0 0 5px 0;
+            font-size: 16px;
+            color: #333333;
+        }
+        
+        .timeline-content p {
+            margin: 0;
+            font-size: 14px;
+            color: #666666;
+        }
+        
+        .footer {
+            background-color: #343a40;
+            color: #ffffff;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        
+        .footer p {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+        }
+        
+        .footer a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        
+        /* Responsive styles */
+        @media only screen and (max-width: 600px) {
+            .email-container {
+                width: 100% !important;
+            }
+            
+            .content {
+                padding: 30px 20px !important;
+            }
+            
+            .header {
+                padding: 20px 15px !important;
+            }
+            
+            .order-table th,
+            .order-table td {
+                padding: 8px 4px !important;
+                font-size: 12px !important;
+            }
+            
+            .order-table .product-image {
+                width: 40px !important;
+                height: 40px !important;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr !important;
+                gap: 10px !important;
+            }
+            
+            .total-amount {
+                font-size: 24px !important;
+            }
+            
+            .timeline-item {
+                flex-direction: column !important;
+                text-align: center !important;
+            }
+            
+            .timeline-icon {
+                margin: 0 0 10px 0 !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header -->
+        <div class="header">
+            <img src="{{logo_url}}" alt="Jirani Logo">
+            <h1>Jirani</h1>
+        </div>
+        
+        <!-- Content -->
+        <div class="content">
+            <h2>🎉 Order Confirmation</h2>
+            
+            <p>Hello <strong>{{customer_name}}</strong>,</p>
+            
+            <p>Thank you for your order! We're excited to confirm that your order has been successfully placed and is being processed.</p>
+            
+            <!-- Order Summary -->
+            <div class="order-summary">
+                <div class="order-header">
+                    <h3 class="order-number">Order #{{order_number}}</h3>
+                    <p class="order-date">Placed on {{order_date}}</p>
+                </div>
+                
+                <!-- Order Items -->
+                <table class="order-table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Qty</th>
+                            <th>Price</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#each order_items}}
+                        <tr>
+                            <td>
+                                <div style="display: flex; align-items: center;">
+                                    <img src="{{product_image}}" alt="{{product_name}}" class="product-image" style="margin-right: 10px;">
+                                    <div>
+                                        <div class="product-name">{{product_name}}</div>
+                                        <small style="color: #666;">by {{vendor_name}}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{quantity}}</td>
+                            <td class="price">Ksh {{unit_price}}</td>
+                            <td class="price">Ksh {{total_price}}</td>
+                        </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
+                
+                <!-- Order Total -->
+                <div class="order-total">
+                    <p style="margin: 0 0 10px 0; color: #666666;">Total Amount</p>
+                    <h3 class="total-amount">Ksh {{total_amount}}</h3>
+                </div>
+            </div>
+            
+            <!-- Delivery Information -->
+            <div class="delivery-info">
+                <h3>🚚 Delivery Information</h3>
+                <p><strong>Delivery Address:</strong><br>{{delivery_address}}</p>
+                <p><strong>Estimated Delivery:</strong> {{estimated_delivery}}</p>
+                <p><strong>Delivery Instructions:</strong> {{delivery_instructions}}</p>
+            </div>
+            
+            <!-- Information Grid -->
+            <div class="info-grid">
+                <div class="info-card">
+                    <h4>📱 Contact Information</h4>
+                    <p><strong>Phone:</strong> {{customer_phone}}</p>
+                    <p><strong>Email:</strong> {{customer_email}}</p>
+                </div>
+                
+                <div class="info-card">
+                    <h4>💳 Payment Method</h4>
+                    <p><strong>Method:</strong> {{payment_method}}</p>
+                    <p><strong>Status:</strong> {{payment_status}}</p>
+                    <p><strong>Transaction ID:</strong> {{transaction_id}}</p>
+                </div>
+            </div>
+            
+            <!-- Order Status Timeline -->
+            <div class="status-timeline">
+                <h3 style="color: #007bff; margin-bottom: 20px;">📋 Order Status</h3>
+                
+                <div class="timeline-item">
+                    <div class="timeline-icon completed">✓</div>
+                    <div class="timeline-content">
+                        <h5>Order Placed</h5>
+                        <p>Your order has been successfully placed</p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-icon current">⏳</div>
+                    <div class="timeline-content">
+                        <h5>Processing</h5>
+                        <p>Vendor is preparing your order</p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-icon pending">📦</div>
+                    <div class="timeline-content">
+                        <h5>Shipped</h5>
+                        <p>Order is on its way to you</p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-icon pending">🏠</div>
+                    <div class="timeline-content">
+                        <h5>Delivered</h5>
+                        <p>Order delivered to your address</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="{{track_order_url}}" class="button">Track Your Order</a>
+            </div>
+            
+            <p><strong>What happens next?</strong></p>
+            <ul>
+                <li>You'll receive SMS and email updates as your order progresses</li>
+                <li>The vendor will contact you if any clarification is needed</li>
+                <li>You can track your order status anytime using the link above</li>
+                <li>Payment will be held securely until delivery is confirmed</li>
+            </ul>
+            
+            <p>If you have any questions about your order, please contact:</p>
+            <ul>
+                <li><strong>Vendor:</strong> {{vendor_name}} - {{vendor_phone}}</li>
+                <li><strong>Jirani Support:</strong> <a href="mailto:{{support_email}}" style="color: #007bff;">{{support_email}}</a></li>
+                <li><strong>Help Center:</strong> <a href="{{help_url}}" style="color: #007bff;">{{help_url}}</a></li>
+            </ul>
+            
+            <p style="margin-top: 30px;">
+                Thank you for choosing Jirani!<br>
+                <strong>The Jirani Team</strong>
+            </p>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <p><strong>Jirani - Your Local Marketplace</strong></p>
+            <p>Connecting communities through local commerce</p>
+            
+            <p>
+                <a href="{{order_history_url}}">Order History</a> | 
+                <a href="{{privacy_url}}">Privacy Policy</a> | 
+                <a href="{{terms_url}}">Terms of Service</a>
+            </p>
+            
+            <p style="font-size: 12px; color: #999999; margin-top: 20px;">
+                © {{current_year}} Jirani. All rights reserved.<br>
+                This email was sent to {{customer_email}}
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+

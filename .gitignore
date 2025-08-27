@@ -1,0 +1,30 @@
+﻿# PHP / Composer
+/vendor/
+/composer.lock
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# uploaded images / runtime files
+/uploads/
+/storage/
+/logs/
+
+# database dumps
+*.sql
+*.sqlite
+
+# Node / build
+node_modules/
+dist/
+
+# Composer
+composer.phar

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Jirani - Vendor Account</title>
+    <style>
+        body { background: #f8f9fa; font-family: 'Segoe UI', Arial, sans-serif; margin: 0; }
+        .email-container { background: #fff; max-width: 600px; margin: 40px auto; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); overflow: hidden; }
+        .header { background: #007bff; color: #fff; padding: 30px 40px 20px 40px; text-align: center; }
+        .header img { max-height: 60px; margin-bottom: 10px; }
+        .header h1 { margin: 0; font-size: 2rem; letter-spacing: 1px; }
+        .content { padding: 40px; color: #333; }
+        .content h2 { color: #007bff; margin-top: 0; }
+        .info-box { background: #e7f3ff; border-left: 6px solid #007bff; padding: 20px; margin: 30px 0; border-radius: 8px; }
+        .credentials { background: #f8f9fa; border: 1px solid #dee2e6; padding: 15px; border-radius: 6px; margin: 20px 0; }
+        .credentials strong { color: #007bff; }
+        .footer { background: #f1f3f6; color: #666; text-align: center; font-size: 13px; padding: 20px 10px; }
+        .button { display: inline-block; background: #007bff; color: #fff !important; padding: 12px 28px; border-radius: 5px; margin: 20px 0; text-decoration: none; font-weight: bold; }
+        @media only screen and (max-width: 600px) { .content { padding: 20px; } }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <img src="{{logo_url}}" alt="Jirani Logo">
+            <h1>Welcome to Jirani!</h1>
+        </div>
+        <div class="content">
+            <h2>Hi {{vendor_name}},</h2>
+            <p>Congratulations! Your vendor account has been created on <strong>Jirani</strong>.</p>
+            <div class="info-box">
+                <p>Your business, <strong>{{business_name}}</strong>, is now set up to start selling on our marketplace.</p>
+            </div>
+            <p>Here are your login credentials:</p>
+            <div class="credentials">
+                <p><strong>Email:</strong> {{vendor_email}}</p>
+                <p><strong>Temporary Password:</strong> {{temp_password}}</p>
+            </div>
+            <p>
+                <a href="{{login_url}}" class="button">Login to Your Vendor Dashboard</a>
+            </p>
+            <p style="margin-top: 30px; color: #666;">For your security, please change your password after your first login.</p>
+            <p>If you have any questions or need assistance, our support team is here to help:<br>
+                <strong>Email:</strong> <a href="mailto:{{support_email}}">{{support_email}}</a> | 
+                <strong>Phone:</strong> {{support_phone}}
+            </p>
+            <p>We wish you great success on Jirani!<br><strong>The Jirani Team</strong></p>
+        </div>
+        <div class="footer">
+            &copy; {{current_year}} Jirani. All rights reserved.<br>
+            <a href="{{privacy_url}}">Privacy Policy</a> | <a href="{{terms_url}}">Terms of Service</a> | <a href="{{help_url}}">Help Center</a>
+        </div>
+    </div>
+</body>
+</html>

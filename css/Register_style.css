@@ -1,0 +1,234 @@
+:root {
+  /* Primary Color Palette */
+  --jirani-primary: #2A5C3D;       /* Forest Green */
+  --jirani-secondary: #FFA726;    /* Warm Orange */
+  --jirani-white: #FFFFFF;        /* White */
+  --jirani-gray: #333333;         /* Dark Gray */
+  --jirani-border: rgba(42, 92, 61, 0.2); /* Primary green with transparency */
+  --jirani-text-secondary: rgba(51, 51, 51, 0.8); /* Gray with opacity */
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+  background-color: var(--jirani-white);
+}
+
+
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 350px;
+  width: 100%;
+  background-color: var(--jirani-white);
+  padding: 20px;
+  border-radius: 20px;
+  box-shadow: 0 2px 10px var(--jirani-border);
+}
+
+.title {
+  font-size: 28px;
+  color:#2A5C3D;
+  font-weight: 600;
+  letter-spacing: -1px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding-left: 30px;
+  margin: 0 0 10px;
+}
+
+.title::before,
+.title::after {
+  position: absolute;
+  content: "";
+  left: 0;
+  border-radius: 50%;
+  background-color: #2A5C3D;
+}
+
+.title::before {
+  width: 18px;
+  height: 18px;
+}
+
+.title::after {
+  width: 18px;
+  height: 18px;
+  animation: pulse 1s linear infinite;
+}
+
+.message, .signin {
+  color: rgba(88, 87, 87, 0.822);
+  font-size: 14px;
+  margin: 5px 0;
+}
+
+.flex {
+  display: flex;
+  gap: 6px;
+  width: 100%;
+}
+
+.form label {
+  position: relative;
+  width: 100%;
+}
+
+.input {
+  width: 100%;
+  padding: 10px 10px 20px 10px;
+  outline: 0;
+  border: 1px solid rgba(105, 105, 105, 0.397);
+  border-radius: 10px;
+  font-size: 1rem;
+}
+
+.input + span {
+  position: absolute;
+  left: 10px;
+  top: 15px;
+  color: grey;
+  font-size: 0.9em;
+  cursor: text;
+  transition: 0.3s ease;
+}
+
+.input:placeholder-shown + span {
+  top: 15px;
+  font-size: 0.9em;
+}
+
+.input:focus + span,
+.input:valid + span {
+  top: 30px;
+  font-size: 0.7em;
+  font-weight: 600;
+}
+
+.input:valid + span {
+  color: #2A5C3D;
+}
+
+.submit {
+  border: none;
+  outline: none;
+  background-color: #2A5C3D;
+  padding: 12px;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.submit:hover {
+  background-color: #2A5C3D;
+}
+
+.signin {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.signin a {
+  color: #2A5C3D;
+  text-decoration: none;
+}
+
+.signin a:hover {
+  text-decoration: underline;
+}
+
+@keyframes pulse {
+  from {
+      transform: scale(0.9);
+      opacity: 1;
+  }
+  to {
+      transform: scale(1.8);
+      opacity: 0;
+  }
+}
+
+
+/* Style the label */
+.input-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #333;
+}
+
+/* Style the input group container */
+.input-group {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+/* Style the select element */
+.input-field {
+  display: block;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  border: 1px solid var(--jirani-primary);
+  border-radius: 0.375rem;
+  background-color: var(--jirani-white);
+  color: var(--jirani-gray);
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  transition: all 0.3s ease;
+}
+
+/* Custom dropdown arrow */
+.input-group::after {
+  content: "▼";
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.75rem;
+  color: var(--jirani-primary);
+  pointer-events: none;
+}
+
+/* Hover state */
+.input-field:hover {
+  border-color: var(--jirani-secondary);
+}
+
+/* Focus state */
+.input-field:focus {
+  outline: none;
+  border-color: var(--jirani-secondary);
+  box-shadow: 0 0 0 3px rgba(255, 167, 38, 0.2);
+}
+
+/* Style the options */
+.input-field option {
+  padding: 0.5rem 1rem;
+  background-color: var(--jirani-white);
+  color: var(--jirani-gray);
+}
+
+/* Disabled placeholder style */
+.input-field option:disabled {
+  color: rgba(51, 51, 51, 0.5);
+}
+
+/* Valid state (when a selection is made) */
+.input-field:valid {
+  border-color: var(--jirani-primary);
+}
+
+/* Accessibility Enhancements */
+.input-label {
+  color: var(--jirani-gray);
+}

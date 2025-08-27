@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{subject}}</title>
+    <style>
+        /* Reset styles */
+        body, table, td, p, a, li, blockquote {
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+        }
+        table, td {
+            mso-table-lspace: 0pt;
+            mso-table-rspace: 0pt;
+        }
+        img {
+            -ms-interpolation-mode: bicubic;
+            border: 0;
+            height: auto;
+            line-height: 100%;
+            outline: none;
+            text-decoration: none;
+        }
+
+        /* Base styles */
+        body {
+            margin: 0 !important;
+            padding: 0 !important;
+            background-color: #f4f6f9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            padding: 30px 20px;
+            text-align: center;
+        }
+        
+        .header img {
+            max-width: 120px;
+            height: auto;
+        }
+        
+        .header h1 {
+            color: #ffffff;
+            margin: 15px 0 0 0;
+            font-size: 28px;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+        
+        .content {
+            padding: 40px 30px;
+            line-height: 1.6;
+            color: #333333;
+        }
+        
+        .content h2 {
+            color: #007bff;
+            margin: 0 0 20px 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .content p {
+            margin: 0 0 16px 0;
+            font-size: 16px;
+        }
+        
+        .button {
+            display: inline-block;
+            padding: 14px 28px;
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: #ffffff !important;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 16px;
+            margin: 20px 0;
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 123, 255, 0.4);
+        }
+        
+        .info-box {
+            background-color: #f8f9fa;
+            border-left: 4px solid #007bff;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 6px 6px 0;
+        }
+        
+        .info-box h3 {
+            margin: 0 0 10px 0;
+            color: #007bff;
+            font-size: 18px;
+        }
+        
+        .info-box p {
+            margin: 0;
+            color: #666666;
+        }
+        
+        .footer {
+            background-color: #343a40;
+            color: #ffffff;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        
+        .footer p {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+        }
+        
+        .footer a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        
+        .social-links {
+            margin: 20px 0;
+        }
+        
+        .social-links a {
+            display: inline-block;
+            margin: 0 10px;
+            color: #ffffff;
+            font-size: 20px;
+            text-decoration: none;
+        }
+        
+        /* Responsive styles */
+        @media only screen and (max-width: 600px) {
+            .email-container {
+                width: 100% !important;
+            }
+            
+            .content {
+                padding: 30px 20px !important;
+            }
+            
+            .header {
+                padding: 20px 15px !important;
+            }
+            
+            .header h1 {
+                font-size: 24px !important;
+            }
+            
+            .content h2 {
+                font-size: 20px !important;
+            }
+            
+            .button {
+                display: block !important;
+                text-align: center !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+        }
+        
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            .email-container {
+                background-color: #1a1a1a !important;
+            }
+            
+            .content {
+                color: #e0e0e0 !important;
+            }
+            
+            .info-box {
+                background-color: #2a2a2a !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header -->
+        <div class="header">
+            <img src="{{logo_url}}" alt="Jirani Logo">
+            <h1>Jirani</h1>
+        </div>
+        
+        <!-- Content -->
+        <div class="content">
+            {{content}}
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <p><strong>Jirani - Your Local Marketplace</strong></p>
+            <p>Connecting communities through local commerce</p>
+            
+            <div class="social-links">
+                <a href="#" title="Facebook">📘</a>
+                <a href="#" title="Twitter">🐦</a>
+                <a href="#" title="Instagram">📷</a>
+                <a href="#" title="LinkedIn">💼</a>
+            </div>
+            
+            <p>
+                <a href="{{unsubscribe_url}}">Unsubscribe</a> | 
+                <a href="{{privacy_url}}">Privacy Policy</a> | 
+                <a href="{{terms_url}}">Terms of Service</a>
+            </p>
+            
+            <p style="font-size: 12px; color: #999999; margin-top: 20px;">
+                © {{current_year}} Jirani. All rights reserved.<br>
+                This email was sent to {{recipient_email}}
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+

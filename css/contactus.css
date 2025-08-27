@@ -1,0 +1,263 @@
+
+:root {
+  --jirani-primary: #2A5C3D;
+  --jirani-secondary: #FFA726;
+  --jirani-white: #FFFFFF;
+  --jirani-gray: #333333;
+}
+
+.button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+  border-radius: 36px;
+  font-weight: 700;
+  height: 54px;
+  font-size: 16px;
+  padding-inline: 20px;
+  background-color: transparent;
+  color: var(--jirani-white);
+  text-transform: uppercase;
+  overflow: hidden;
+  text-align: center;
+  transition: all .25s ease-in-out;
+  z-index: 1;
+  border: none;
+}
+
+.button:is(:hover, :focus)::before {
+  transform: translateX(0%);
+}
+
+.text {
+  white-space: nowrap;
+  line-height: 1.2;
+  padding-inline-end: 44px;
+  z-index: 2;
+}
+
+.button::after {
+  content: '';
+  position: absolute;
+  height: calc(100% - 2px);
+  width: calc(100% - 2px);
+  border: 1px solid var(--jirani-primary);
+  border-radius: 36px;
+  z-index: 2;
+}
+
+.button::before {
+  content: "";
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  background-color: var(--jirani-primary);
+  z-index: 1;
+  left: -2px;
+  transform: translateX(90%);
+  transition: all .3s ease-out;
+}
+
+.icon {
+  display: inherit;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 0;
+  width: 54px;
+  height: 54px;
+  justify-content: center;
+  align-items: center;
+  border-radius: 100%;
+  background-color: var(--jirani-primary);
+  z-index: 2;
+}
+
+/* Add hover effect for secondary color accent */
+.button:hover .icon {
+  background-color: var(--jirani-secondary);
+  transition: background-color 0.3s ease;
+}
+
+/* Optional: Add secondary color accent on hover */
+.button:is(:hover, :focus) {
+  color: var(--jirani-secondary);
+}
+
+/* Custom Select Styling */
+.form-label {
+  color: var(--jirani-gray);
+  font-weight: 500;
+  margin-bottom: 0.8rem;
+}
+
+.form-select {
+  border: 2px solid var(--jirani-primary);
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 16px;
+  color: var(--jirani-gray);
+  transition: all 0.3s ease;
+  background-color: var(--jirani-white);
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='%232A5C3D' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 16px 12px;
+}
+
+.form-select:focus {
+  border-color: var(--jirani-primary);
+  box-shadow: 0 0 0 3px rgba(42, 92, 61, 0.25);
+}
+
+.form-select:hover {
+  border-color: var(--jirani-secondary);
+}
+
+.form-select option {
+  padding: 12px;
+  background-color: var(--jirani-white);
+  color: var(--jirani-gray);
+}
+
+.form-select option:hover {
+  background-color: var(--jirani-primary) !important;
+  color: var(--jirani-white);
+}
+
+.invalid-feedback {
+  color: var(--jirani-secondary);
+  font-weight: 500;
+  margin-top: 0.5rem;
+}
+
+/* Contact Form Styling */
+.contact-card {
+  background: var(--jirani-white);
+  border: 2px solid var(--jirani-primary);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(42, 92, 61, 0.1);
+  padding: 2rem;
+}
+
+.form-label {
+  color: var(--jirani-gray);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.form-control, .form-select {
+  border: 2px solid var(--jirani-primary);
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: var(--jirani-gray);
+  transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--jirani-primary);
+  box-shadow: 0 0 0 3px rgba(42, 92, 61, 0.2);
+  outline: none;
+}
+
+.form-control:hover, .form-select:hover {
+  border-color: var(--jirani-secondary);
+}
+
+.input-group-text {
+  background-color: rgba(42, 92, 61, 0.05);
+  border: 2px solid var(--jirani-primary);
+  border-right: none;
+  color: var(--jirani-gray);
+  font-weight: 500;
+}
+
+.invalid-feedback {
+  color: var(--jirani-secondary);
+  font-weight: 500;
+  font-size: 0.85rem;
+}
+
+.text-muted {
+  color: rgba(51, 51, 51, 0.7) !important;
+  font-size: 0.85rem;
+}
+
+/* Button Styling */
+.button {
+  margin-top: 1.5rem;
+  border: 2px solid var(--jirani-primary);
+  background: transparent;
+  color: var(--jirani-primary);
+}
+
+.button:hover {
+  border-color: var(--jirani-secondary);
+  color: var(--jirani-secondary);
+}
+
+.button .icon {
+  background-color: var(--jirani-primary);
+}
+
+.button:hover .icon {
+  background-color: var(--jirani-secondary);
+}
+
+
+/* Custom Select Styling */
+.col-12 .form-label {
+  color: var(--jirani-gray) !important;
+  font-weight: 600;
+}
+
+.col-12 .form-select {
+  border: 2px solid var(--jirani-primary) !important;
+  color: var(--jirani-gray) !important;
+  background-color: var(--jirani-white) !important;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path fill="%232A5C3D" d="M2 5l6 6 6-6"/></svg>') !important;
+  transition: all 0.3s ease;
+}
+
+.col-12 .form-select:hover {
+  border-color: var(--jirani-secondary) !important;
+}
+
+.col-12 .form-select:focus {
+  box-shadow: 0 0 0 3px rgba(42, 92, 61, 0.25) !important;
+}
+
+.col-12 .invalid-feedback {
+  color: var(--jirani-secondary) !important;
+  font-weight: 500;
+}
+
+/* Option styling */
+.col-12 .form-select option {
+  color: var(--jirani-gray) !important;
+  background-color: var(--jirani-white) !important;
+}
+
+.col-12 .form-select option:hover {
+  background-color: var(--jirani-secondary) !important;
+  color: var(--jirani-white) !important;
+}
+/* Textarea Styling */
+.form-control[type="textarea"] {
+  border: 2px solid var(--jirani-primary) !important;
+  color: var(--jirani-gray) !important;
+  background-color: var(--jirani-white) !important;
+  min-height: 120px;
+  resize: vertical;
+}
+
+.form-control[type="textarea"]:hover {
+  border-color: var(--jirani-secondary) !important;
+}
+
+.form-control[type="textarea"]:focus {
+  box-shadow: 0 0 0 3px rgba(42, 92, 61, 0.25) !important;
+  outline: none;
+}

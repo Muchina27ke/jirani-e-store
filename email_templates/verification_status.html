@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verification Status Update - Jirani</title>
+    <style>
+        /* Reset styles */
+        body, table, td, p, a, li, blockquote {
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+        }
+        table, td {
+            mso-table-lspace: 0pt;
+            mso-table-rspace: 0pt;
+        }
+        img {
+            -ms-interpolation-mode: bicubic;
+            border: 0;
+            height: auto;
+            line-height: 100%;
+            outline: none;
+            text-decoration: none;
+        }
+
+        /* Base styles */
+        body {
+            margin: 0 !important;
+            padding: 0 !important;
+            background-color: #f4f6f9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            padding: 30px 20px;
+            text-align: center;
+        }
+        
+        .header img {
+            max-width: 120px;
+            height: auto;
+        }
+        
+        .header h1 {
+            color: #ffffff;
+            margin: 15px 0 0 0;
+            font-size: 28px;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+        
+        .content {
+            padding: 40px 30px;
+            line-height: 1.6;
+            color: #333333;
+        }
+        
+        .content h2 {
+            color: #007bff;
+            margin: 0 0 20px 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .content p {
+            margin: 0 0 16px 0;
+            font-size: 16px;
+        }
+        
+        .button {
+            display: inline-block;
+            padding: 14px 28px;
+            color: #ffffff !important;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 16px;
+            margin: 20px 0;
+            transition: all 0.3s ease;
+        }
+        
+        .button-success {
+            background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+        
+        .button-danger {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+        }
+        
+        .button-primary {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+        }
+        
+        .button:hover {
+            transform: translateY(-2px);
+        }
+        
+        .status-box {
+            border-radius: 8px;
+            padding: 25px;
+            margin: 25px 0;
+            text-align: center;
+        }
+        
+        .status-approved {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            border: 2px solid #28a745;
+        }
+        
+        .status-rejected {
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+            border: 2px solid #dc3545;
+        }
+        
+        .status-pending {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border: 2px solid #ffc107;
+        }
+        
+        .status-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        
+        .status-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 0 0 10px 0;
+        }
+        
+        .status-approved .status-title {
+            color: #155724;
+        }
+        
+        .status-rejected .status-title {
+            color: #721c24;
+        }
+        
+        .status-pending .status-title {
+            color: #856404;
+        }
+        
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .info-table th,
+        .info-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .info-table th {
+            background-color: #007bff;
+            color: #ffffff;
+            font-weight: 600;
+        }
+        
+        .info-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .rejection-reason {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .rejection-reason h3 {
+            margin: 0 0 10px 0;
+            color: #721c24;
+            font-size: 18px;
+        }
+        
+        .rejection-reason p {
+            margin: 0;
+            color: #721c24;
+        }
+        
+        .next-steps {
+            background-color: #e7f3ff;
+            border: 1px solid #b3d7ff;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .next-steps h3 {
+            margin: 0 0 15px 0;
+            color: #0056b3;
+            font-size: 18px;
+        }
+        
+        .next-steps ul {
+            margin: 0;
+            padding-left: 20px;
+            color: #0056b3;
+        }
+        
+        .next-steps li {
+            margin-bottom: 8px;
+        }
+        
+        .footer {
+            background-color: #343a40;
+            color: #ffffff;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        
+        .footer p {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+        }
+        
+        .footer a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        
+        /* Responsive styles */
+        @media only screen and (max-width: 600px) {
+            .email-container {
+                width: 100% !important;
+            }
+            
+            .content {
+                padding: 30px 20px !important;
+            }
+            
+            .header {
+                padding: 20px 15px !important;
+            }
+            
+            .header h1 {
+                font-size: 24px !important;
+            }
+            
+            .content h2 {
+                font-size: 20px !important;
+            }
+            
+            .button {
+                display: block !important;
+                text-align: center !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+            
+            .status-icon {
+                font-size: 36px !important;
+            }
+            
+            .status-title {
+                font-size: 20px !important;
+            }
+            
+            .info-table th,
+            .info-table td {
+                padding: 8px 10px !important;
+                font-size: 14px !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header -->
+        <div class="header">
+            <img src="{{logo_url}}" alt="Jirani Logo">
+            <h1>Jirani</h1>
+        </div>
+        
+        <!-- Content -->
+        <div class="content">
+            <h2>📋 Vendor Verification Update</h2>
+            
+            <p>Hello <strong>{{vendor_name}}</strong>,</p>
+            
+            <p>We have an important update regarding your vendor verification status on Jirani.</p>
+            
+            <!-- Status Box - Approved -->
+            {{#if_approved}}
+            <div class="status-box status-approved">
+                <div class="status-icon">✅</div>
+                <div class="status-title">Verification Approved!</div>
+                <p style="margin: 0; color: #155724;">Congratulations! Your vendor account has been successfully verified.</p>
+            </div>
+            {{/if_approved}}
+            
+            <!-- Status Box - Rejected -->
+            {{#if_rejected}}
+            <div class="status-box status-rejected">
+                <div class="status-icon">❌</div>
+                <div class="status-title">Verification Rejected</div>
+                <p style="margin: 0; color: #721c24;">Unfortunately, your verification could not be approved at this time.</p>
+            </div>
+            {{/if_rejected}}
+            
+            <!-- Status Box - Pending -->
+            {{#if_pending}}
+            <div class="status-box status-pending">
+                <div class="status-icon">⏳</div>
+                <div class="status-title">Verification Pending</div>
+                <p style="margin: 0; color: #856404;">Your verification is currently under review by our team.</p>
+            </div>
+            {{/if_pending}}
+            
+            <!-- Verification Details -->
+            <table class="info-table">
+                <tr>
+                    <th>Business Name</th>
+                    <td>{{business_name}}</td>
+                </tr>
+                <tr>
+                    <th>Verification Status</th>
+                    <td><strong>{{verification_status}}</strong></td>
+                </tr>
+                <tr>
+                    <th>Submitted Date</th>
+                    <td>{{submission_date}}</td>
+                </tr>
+                <tr>
+                    <th>Review Date</th>
+                    <td>{{review_date}}</td>
+                </tr>
+                {{#if_reviewer}}
+                <tr>
+                    <th>Reviewed By</th>
+                    <td>{{reviewer_name}}</td>
+                </tr>
+                {{/if_reviewer}}
+            </table>
+            
+            <!-- Rejection Reason (if rejected) -->
+            {{#if_rejected}}
+            <div class="rejection-reason">
+                <h3>🔍 Reason for Rejection</h3>
+                <p>{{rejection_reason}}</p>
+            </div>
+            {{/if_rejected}}
+            
+            <!-- Next Steps -->
+            {{#if_approved}}
+            <div class="next-steps">
+                <h3>🎉 What's Next?</h3>
+                <ul>
+                    <li>You can now start listing products on your vendor dashboard</li>
+                    <li>Set up your delivery zones and payment preferences</li>
+                    <li>Begin receiving orders from customers in your area</li>
+                    <li>Access detailed analytics and sales reports</li>
+                </ul>
+            </div>
+            
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="{{vendor_dashboard_url}}" class="button button-success">Access Vendor Dashboard</a>
+            </div>
+            {{/if_approved}}
+            
+            {{#if_rejected}}
+            <div class="next-steps">
+                <h3>🔄 How to Resubmit</h3>
+                <ul>
+                    <li>Review the rejection reason carefully</li>
+                    <li>Prepare updated documentation addressing the issues</li>
+                    <li>Ensure all documents are clear and legible</li>
+                    <li>Resubmit your verification through your vendor dashboard</li>
+                </ul>
+            </div>
+            
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="{{resubmit_url}}" class="button button-danger">Resubmit Verification</a>
+            </div>
+            {{/if_rejected}}
+            
+            {{#if_pending}}
+            <div class="next-steps">
+                <h3>⏰ What to Expect</h3>
+                <ul>
+                    <li>Our team typically reviews submissions within 2-3 business days</li>
+                    <li>You'll receive an email notification once the review is complete</li>
+                    <li>You can check your status anytime on your vendor dashboard</li>
+                    <li>Ensure your contact information is up to date for important updates</li>
+                </ul>
+            </div>
+            
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="{{check_status_url}}" class="button button-primary">Check Status</a>
+            </div>
+            {{/if_pending}}
+            
+            <p>If you have any questions about your verification status or need assistance, please don't hesitate to contact our support team:</p>
+            
+            <ul>
+                <li>Email: <a href="mailto:{{support_email}}" style="color: #007bff;">{{support_email}}</a></li>
+                <li>Phone: <strong>{{support_phone}}</strong></li>
+                <li>Help Center: <a href="{{help_url}}" style="color: #007bff;">{{help_url}}</a></li>
+            </ul>
+            
+            <p style="margin-top: 30px;">
+                Thank you for choosing Jirani as your marketplace platform!<br>
+                <strong>The Jirani Team</strong>
+            </p>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <p><strong>Jirani - Your Local Marketplace</strong></p>
+            <p>Empowering local businesses to thrive</p>
+            
+            <p>
+                <a href="{{vendor_guidelines_url}}">Vendor Guidelines</a> | 
+                <a href="{{privacy_url}}">Privacy Policy</a> | 
+                <a href="{{terms_url}}">Terms of Service</a>
+            </p>
+            
+            <p style="font-size: 12px; color: #999999; margin-top: 20px;">
+                © {{current_year}} Jirani. All rights reserved.<br>
+                This email was sent to {{vendor_email}}
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+
