@@ -2,7 +2,7 @@
 require_once __DIR__ . '/config/config.php';
 
 if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php?redirect=profile.php');
+    header('Location: ' . SITE_URL . 'login.php?redirect=profile.php');
     exit();
 }
 
@@ -70,86 +70,11 @@ if ($conn->query("SHOW TABLES LIKE 'user_addresses'")->num_rows) {
 
 $pageTitle = 'My Profile - Jirani';
 $currentPage = 'profile';
-require_once __DIR__ . '/includes/Auth.php';
-require_once __DIR__ . '/includes/Navigation.php';
-$auth = new Auth($conn);
-$currentUser = null;
-if ($auth->isLoggedIn()) {
-    $currentUser = $auth->getUser();
-}
+$additionalCSS = ['https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css'];
+require_once __DIR__ . '/navbar.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo htmlspecialchars($pageTitle); ?></title>
-    
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- FontAwesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="/jirani/assets/css/style.css">
-    
 <style>
-    :root {
-        --jirani-primary: #2A5C3D;
-        --jirani-secondary: #FFA726;
-        --jirani-white: #FFFFFF;
-        --jirani-gray: #333333;
-    }
-
-    /* Base Elements */
-    body {
-        background-color: var(--jirani-white);
-        color: var(--jirani-gray);
-    }
-
-    .navbar {
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        background-color: var(--jirani-white) !important;
-    }
-
-    /* Text Elements */
-    .navbar-brand,
-    .nav-link {
-        color: var(--jirani-primary) !important;
-    }
-
-    h1,
-    h2,
-    h3 {
-        color: var(--jirani-primary);
-    }
-
-    /* Buttons */
-    .btn-jirani {
-        background-color: var(--jirani-primary);
-        border: none;
-        color: var(--jirani-white);
-    }
-
-    .btn-jirani:hover {
-        background-color: var(--jirani-secondary);
-        color: var(--jirani-gray);
-    }
-
-    /* Dropdowns */
-    .dropdown-menu {
-        background-color: var(--jirani-primary);
-        border: 1px solid var(--jirani-secondary);
-    }
-
-    .dropdown-item {
-        color: var(--jirani-white) !important;
-    }
-
-    .dropdown-item:hover {
-        background-color: var(--jirani-secondary) !important;
-    }
-
     .profile-container {
         background: linear-gradient(135deg, rgba(42, 92, 61, 0.02), rgba(42, 92, 61, 0.05));
         min-height: 100vh;
@@ -159,7 +84,7 @@ if ($auth->isLoggedIn()) {
     }
 
     .profile-card {
-        background: var(--jirani-white);
+        background: #fff;
         border-radius: 12px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         border: 1px solid rgba(42, 92, 61, 0.1);
@@ -172,12 +97,12 @@ if ($auth->isLoggedIn()) {
         height: 100px;
         border-radius: 50%;
         object-fit: cover;
-        border: 3px solid var(--jirani-primary);
+        border: 3px solid var(--j-primary);
         background: #eee;
     }
 
     .profile-section-title {
-        color: var(--jirani-primary);
+        color: var(--j-primary);
         font-weight: 700;
         margin-bottom: 1rem;
         display: flex;
@@ -198,7 +123,7 @@ if ($auth->isLoggedIn()) {
     }
 
     .order-summary-card {
-        background: var(--jirani-white);
+        background: #fff;
         border-radius: 12px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
         border: 1px solid rgba(42, 92, 61, 0.1);
@@ -217,13 +142,6 @@ if ($auth->isLoggedIn()) {
         }
     }
 </style>
-</head>
-<body>
-
-<?php
-$navigation = new Navigation($conn, $currentUser, 'profile');
-echo $navigation->renderCustomerNav();
-?>
 
 <div class="profile-container py-4">
     <div class="container">
@@ -235,18 +153,18 @@ echo $navigation->renderCustomerNav();
                             class="profile-avatar mb-3" id="profileAvatar" alt="Profile Picture">
                         <input type="file" name="avatar" id="avatarInput" class="form-control mb-2" accept="image/*"
                             style="display:none;" onchange="document.getElementById('avatar-form').submit();">
-                        <button type="button" class="btn btn-secondary btn-sm w-100"
+                        <button type="button" class="j-btn j-btn-outline j-btn-sm w-100"
                             onclick="document.getElementById('avatarInput').click();"><i class="fas fa-camera"></i>
                             Change Photo</button>
                     </form>
                     <h4 class="mt-3 mb-1"><?php echo htmlspecialchars($user['name']); ?></h4>
                     <p class="text-muted mb-1"><?php echo htmlspecialchars($user['email']); ?></p>
                     <p class="text-muted mb-1"><?php echo htmlspecialchars($user['phone']); ?></p>
-                    <span class="badge bg-success"><?php echo ucfirst($user['role']); ?></span>
+                    <span class="badge" style="background-color: var(--j-primary);"><?php echo ucfirst($user['role']); ?></span>
                     <div class="mt-3">
-                        <a href="cart.php" class="btn btn-outline-primary btn-sm w-100 mb-2"><i
+                        <a href="cart.php" class="j-btn j-btn-outline w-100 mb-2"><i
                                 class="fas fa-shopping-cart me-1"></i> View Cart</a>
-                        <a href="wishlist.php" class="btn btn-outline-warning btn-sm w-100"><i
+                        <a href="wishlist.php" class="j-btn j-btn-outline w-100"><i
                                 class="fas fa-heart me-1"></i> View Wishlist</a>
                     </div>
                 </div>
@@ -256,7 +174,7 @@ echo $navigation->renderCustomerNav();
                         <p class="mb-1"><strong>Business:</strong>
                             <?php echo htmlspecialchars($vendorInfo['business_name']); ?></p>
                         <p class="mb-1"><strong>Status:</strong> <span
-                                class="badge bg-info"><?php echo ucfirst($vendorInfo['status']); ?></span></p>
+                                class="badge" style="background-color: var(--j-primary);"><?php echo ucfirst($vendorInfo['status']); ?></span></p>
                         <?php if (!empty($vendorInfo['mpesa_number'])): ?>
                             <p class="mb-1"><strong>M-Pesa:</strong>
                                 <?php echo htmlspecialchars($vendorInfo['mpesa_number']); ?></p>
@@ -291,7 +209,7 @@ echo $navigation->renderCustomerNav();
                             <input type="email" class="form-control" id="email" name="email"
                                 value="<?php echo htmlspecialchars($user['email']); ?>" required>
                         </div>
-                        <button type="submit" name="update_profile" class="btn btn-primary w-100">Save Changes</button>
+                        <button type="submit" name="update_profile" class="j-btn j-btn-primary w-100">Save Changes</button>
                     </form>
                 </div>
                 <div class="profile-card p-4 mb-4">
@@ -311,7 +229,7 @@ echo $navigation->renderCustomerNav();
                             <input type="password" class="form-control" id="confirm_password" name="confirm_password"
                                 required>
                         </div>
-                        <button type="submit" name="change_password" class="btn btn-success w-100">Change
+                        <button type="submit" name="change_password" class="j-btn j-btn-primary w-100">Change
                             Password</button>
                     </form>
                 </div>
@@ -342,16 +260,16 @@ echo $navigation->renderCustomerNav();
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
                                     <span>
                                         <a href="order_details.php?order_id=<?php echo $order['id']; ?>"
-                                            class="fw-bold text-primary">#<?php echo str_pad($order['id'], 6, '0', STR_PAD_LEFT); ?></a>
+                                            class="fw-bold" style="color: var(--j-primary); text-decoration: none;">#<?php echo str_pad($order['id'], 6, '0', STR_PAD_LEFT); ?></a>
                                         <span
                                             class="text-muted ms-2">(<?php echo htmlspecialchars($order['business_name']); ?>)</span>
                                     </span>
-                                    <span class="badge bg-info"><?php echo ucfirst($order['status']); ?></span>
+                                    <span class="badge" style="background-color: var(--j-primary);"><?php echo ucfirst($order['status']); ?></span>
                                 </li>
                             <?php endforeach; ?>
                         </ul>
                         <div class="text-end mt-2">
-                            <a href="orders.php" class="btn btn-outline-primary btn-sm">View All Orders</a>
+                            <a href="orders.php" class="j-btn j-btn-outline j-btn-sm">View All Orders</a>
                         </div>
                     <?php else: ?>
                         <p class="text-muted">No recent orders found.</p>
@@ -379,24 +297,7 @@ echo $navigation->renderCustomerNav();
     }
 </script>
 
-<?php include 'footer.php'; ?>
-
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-<script>
-// Avatar preview functionality
-document.getElementById('avatarInput').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            document.getElementById('profileAvatar').src = e.target.result;
-        };
-        reader.readAsDataURL(file);
-    }
-});
-</script>
-
-</body>
-</html>
+<?php require_once __DIR__ . '/footer.php'; ?>

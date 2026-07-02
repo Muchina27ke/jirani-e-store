@@ -189,36 +189,40 @@ $orders = $orderObj->get_orders_by_vendor($vendorId);
 ob_start();
 ?>
 
-<div class="card">
-    <div class="card-body">
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0" style="font-family: var(--j-font-heading); font-weight: 700; color: var(--j-primary);">Orders</h1>
+</div>
+
+<div class="card shadow-sm border-0" style="border-radius: var(--j-radius-lg);">
+    <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-bordered table-striped">
-                <thead>
+            <table class="table table-hover mb-0 border-0" style="border-bottom-left-radius: var(--j-radius-lg); border-bottom-right-radius: var(--j-radius-lg); overflow: hidden;">
+                <thead style="background-color: rgba(99, 102, 241, 0.05);">
                     <tr>
-                        <th>Order ID</th>
-                        <th>Customer</th>
-                        <th>Items</th>
-                        <th>Amount</th>
-                        <th>Payment</th>
-                        <th>Status</th>
-                        <th>Date</th>
-                        <th>Actions</th>
+                        <th class="border-0 px-4 py-3" style="font-weight: 600; color: #4b5563;">Order ID</th>
+                        <th class="border-0 px-4 py-3" style="font-weight: 600; color: #4b5563;">Customer</th>
+                        <th class="border-0 px-4 py-3" style="font-weight: 600; color: #4b5563;">Items</th>
+                        <th class="border-0 px-4 py-3" style="font-weight: 600; color: #4b5563;">Amount</th>
+                        <th class="border-0 px-4 py-3" style="font-weight: 600; color: #4b5563;">Payment</th>
+                        <th class="border-0 px-4 py-3" style="font-weight: 600; color: #4b5563;">Status</th>
+                        <th class="border-0 px-4 py-3" style="font-weight: 600; color: #4b5563;">Date</th>
+                        <th class="border-0 px-4 py-3" style="font-weight: 600; color: #4b5563;">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php foreach ($orders as $order): ?>
-                        <tr>
-                            <td>#<?php echo str_pad($order['id'], 8, '0', STR_PAD_LEFT); ?></td>
-                            <td>
+                        <tr style="border-bottom: 1px solid rgba(0,0,0,0.05);">
+                            <td class="px-4 py-3 align-middle font-weight-bold" style="color: var(--j-primary);">#<?php echo str_pad($order['id'], 8, '0', STR_PAD_LEFT); ?></td>
+                            <td class="px-4 py-3 align-middle">
                                 <?php echo htmlspecialchars($order['customer_name']); ?><br>
                                 <small class="text-muted">
                                     <?php echo htmlspecialchars($order['customer_email']); ?>
                                 </small>
                             </td>
-                            <td><?php echo number_format($order['total_items']); ?></td>
-                            <td>KSh <?php echo number_format($order['total_amount'], 2); ?></td>
-                            <td>
-                                <span class="badge badge-<?php
+                            <td class="px-4 py-3 align-middle"><?php echo number_format($order['total_items']); ?></td>
+                            <td class="px-4 py-3 align-middle font-weight-bold">KSh <?php echo number_format($order['total_amount'], 2); ?></td>
+                            <td class="px-4 py-3 align-middle">
+                                <span class="badge" style="padding: 6px 12px; border-radius: 50px; font-weight: 600; <?php
                                 // Retrieve payment status from the database for the current order
                                 $paymentStatus = 'N/A';
                                 $paymentQuery = $db->prepare("SELECT status FROM payments WHERE order_id = ? ORDER BY created_at DESC LIMIT 1");
@@ -229,56 +233,54 @@ ob_start();
                                     $paymentStatus = $paymentRow['status'];
                                 }
 
-                                echo match ($paymentStatus) {
-                                    'Paid' => 'success',
-                                    'Pending' => 'warning',
-                                    'Failed' => 'danger',
-                                    'Reversed' => 'danger',
-                                    'Completed' => 'success',
-                                    default => 'secondary'
+                                echo match (strtolower($paymentStatus)) {
+                                    'paid', 'completed' => 'background: rgba(16, 185, 129, 0.15); color: #059669;',
+                                    'pending' => 'background: rgba(245, 158, 11, 0.15); color: #d97706;',
+                                    'failed', 'reversed' => 'background: rgba(239, 68, 68, 0.15); color: #dc2626;',
+                                    default => 'background: #f3f4f6; color: #374151;'
                                 };
                                 ?>">
                                     <?php echo ucfirst($paymentStatus); ?>
                                 </span>
                             </td>
-                            <td>
-                                <span class="badge badge-<?php
+                            <td class="px-4 py-3 align-middle">
+                                <span class="badge" style="padding: 6px 12px; border-radius: 50px; font-weight: 600; <?php
                                 echo match ($order['status']) {
-                                    'pending' => 'warning',
-                                    'processing' => 'info',
-                                    'shipped' => 'primary',
-                                    'delivered' => 'success',
-                                    'cancelled' => 'danger',
-                                    default => 'secondary'
+                                    'pending' => 'background: rgba(245, 158, 11, 0.15); color: #d97706;',
+                                    'processing' => 'background: rgba(14, 165, 233, 0.15); color: #0284c7;',
+                                    'shipped' => 'background: rgba(99, 102, 241, 0.15); color: #4f46e5;',
+                                    'delivered' => 'background: rgba(16, 185, 129, 0.15); color: #059669;',
+                                    'cancelled' => 'background: rgba(239, 68, 68, 0.15); color: #dc2626;',
+                                    default => 'background: #f3f4f6; color: #374151;'
                                 };
                                 ?>">
                                     <?php echo ucfirst($order['status']); ?>
                                 </span>
                             </td>
-                            <td><?php echo date('M d, Y H:i', strtotime($order['created_at'])); ?></td>
-                            <td>
-                                <div class="btn-group">
-                                    <button type="button" class="btn btn-sm btn-info" data-toggle="modal"
-                                        data-target="#viewOrderModal<?php echo $order['id']; ?>">
+                            <td class="px-4 py-3 align-middle text-muted"><?php echo date('M d, Y H:i', strtotime($order['created_at'])); ?></td>
+                            <td class="px-4 py-3 align-middle">
+                                <div class="d-flex align-items-center" style="gap: 8px;">
+                                    <button type="button" class="btn btn-sm text-white" style="background-color: #17a2b8; border: none; border-radius: 6px; width: 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center;" data-toggle="modal"
+                                        data-target="#viewOrderModal<?php echo $order['id']; ?>" title="View Order">
                                         <i class="fas fa-eye"></i>
                                     </button>
                                     <?php if ($order['status'] === 'pending'): ?>
-                                        <button type="button" class="btn btn-sm btn-success" data-toggle="modal"
-                                            data-target="#processOrderModal<?php echo $order['id']; ?>">
+                                        <button type="button" class="btn btn-sm text-white" style="background-color: #28a745; border: none; border-radius: 6px; width: 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center;" data-toggle="modal"
+                                            data-target="#processOrderModal<?php echo $order['id']; ?>" title="Process Order">
                                             <i class="fas fa-check"></i>
                                         </button>
-                                        <button type="button" class="btn btn-sm btn-danger" data-toggle="modal"
-                                            data-target="#cancelOrderModal<?php echo $order['id']; ?>">
+                                        <button type="button" class="btn btn-sm text-white" style="background-color: #dc3545; border: none; border-radius: 6px; width: 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center;" data-toggle="modal"
+                                            data-target="#cancelOrderModal<?php echo $order['id']; ?>" title="Cancel Order">
                                             <i class="fas fa-times"></i>
                                         </button>
                                     <?php elseif ($order['status'] === 'processing'): ?>
-                                        <button type="button" class="btn btn-sm btn-primary" data-toggle="modal"
-                                            data-target="#shipOrderModal<?php echo $order['id']; ?>">
+                                        <button type="button" class="btn btn-sm text-white" style="background-color: #007bff; border: none; border-radius: 6px; width: 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center;" data-toggle="modal"
+                                            data-target="#shipOrderModal<?php echo $order['id']; ?>" title="Ship Order">
                                             <i class="fas fa-truck"></i>
                                         </button>
                                     <?php elseif ($order['status'] === 'shipped'): ?>
-                                        <button type="button" class="btn btn-sm btn-success" data-toggle="modal"
-                                            data-target="#deliverOrderModal<?php echo $order['id']; ?>">
+                                        <button type="button" class="btn btn-sm text-white" style="background-color: #28a745; border: none; border-radius: 6px; width: 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center;" data-toggle="modal"
+                                            data-target="#deliverOrderModal<?php echo $order['id']; ?>" title="Mark Delivered">
                                             <i class="fas fa-check-double"></i>
                                         </button>
                                     <?php endif; ?>

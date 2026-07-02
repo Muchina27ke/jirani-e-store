@@ -118,7 +118,7 @@ class Cart
     {
         try {
             $stmt = $this->conn->prepare("
-                SELECT c.*, p.name, p.price, p.image, p.stock, v.business_name as vendor_name
+                SELECT c.*, p.name, p.price, p.image_url as image, p.stock, v.business_name as vendor_name
                 FROM cart c
                 JOIN products p ON c.product_id = p.id
                 JOIN vendors v ON p.vendor_id = v.user_id

@@ -9,7 +9,7 @@ $action = $_GET['action'] ?? '';
 switch ($action) {
     case 'logout':
         $user->logout();
-        header("Location: Signin/index.php?logged_out=true");
+        header("Location: " . SITE_URL . "Signin/index.php?logged_out=true");
         exit();
 
     case 'get_users':
@@ -102,14 +102,14 @@ switch ($action) {
         // If no action specified, redirect to appropriate page
         if ($user->is_logged_in()) {
             if ($user->is_admin()) {
-                header("Location: admin/dashboard.php");
+                header("Location: " . SITE_URL . "admin/");
             } elseif ($user->is_vendor()) {
-                header("Location: seller/dashboard.php");
+                header("Location: " . SITE_URL . "seller/");
             } else {
-                header("Location: index.php");
+                header("Location: " . SITE_URL);
             }
         } else {
-            header("Location: Signin/index.php");
+            header("Location: " . SITE_URL . "Signin/index.php");
         }
         exit();
 }

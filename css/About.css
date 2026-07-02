@@ -1,10 +1,28 @@
-
 :root {
     --jirani-primary: #2A5C3D;
     --jirani-secondary: #FFA726;
     --jirani-white: #FFFFFF;
     --jirani-gray: #333333;
 }
+
+/* Utility Classes */
+.text-jirani-primary { color: var(--jirani-primary) !important; }
+.text-jirani-secondary { color: var(--jirani-secondary) !important; }
+.text-jirani-white { color: var(--jirani-white) !important; }
+.text-jirani-gray { color: var(--jirani-gray) !important; }
+
+.bg-jirani-primary { background-color: var(--jirani-primary) !important; }
+.bg-jirani-secondary { background-color: var(--jirani-secondary) !important; }
+.bg-jirani-white { background-color: var(--jirani-white) !important; }
+
+.border-jirani-primary { border-color: var(--jirani-primary) !important; }
+.border-jirani-secondary { border-color: var(--jirani-secondary) !important; }
+
+.bg-opacity-10 { opacity: 0.1 !important; }
+.bg-jirani-primary.bg-opacity-10 { background-color: rgba(42, 92, 61, 0.1) !important; opacity: 1 !important; }
+.bg-jirani-secondary.bg-opacity-10 { background-color: rgba(255, 167, 38, 0.1) !important; opacity: 1 !important; }
+.bg-jirani-white.bg-opacity-10 { background-color: rgba(255, 255, 255, 0.1) !important; opacity: 1 !important; }
+
 
 .about-hero {
     background: linear-gradient(rgba(42, 92, 61, 0.1), rgba(42, 92, 61, 0.1)),

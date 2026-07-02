@@ -61,8 +61,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 ob_start();
 ?>
-<div class="container-fluid mt-4">
-    <h2 class="mb-4">My Profile</h2>
+<div class="container-fluid mt-4 mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0" style="font-family: var(--j-font-heading); font-weight: 700; color: var(--j-primary);">My Profile</h1>
+    </div>
     <?php if ($success): ?>
         <div class="alert alert-success"> <?php echo $success; ?> </div>
     <?php endif; ?>
@@ -70,71 +72,79 @@ ob_start();
         <div class="alert alert-danger"> <?php echo htmlspecialchars($error); ?> </div>
     <?php endif; ?>
     <form method="POST" enctype="multipart/form-data" class="mb-5">
-        <div class="card mb-4">
-            <div class="card-header"><strong>Profile Picture</strong></div>
-            <div class="card-body d-flex align-items-center">
-                <img src="https://ui-avatars.com/api/?name=<?php echo urlencode($user['name'] ?? 'Vendor'); ?>&background=28a745&color=fff"
-                    class="rounded-circle mr-3" style="width: 80px; height: 80px; object-fit: cover;"
+        <div class="card shadow-sm border-0 mb-4" style="border-radius: var(--j-radius-lg); overflow: hidden;">
+            <div class="card-header bg-white border-0 pt-4 pb-2 px-4">
+                <strong style="font-family: var(--j-font-heading); font-size: 1.1rem; color: #4b5563;">Profile Picture</strong>
+            </div>
+            <div class="card-body d-flex align-items-center px-4 pb-4 pt-2">
+                <img src="https://ui-avatars.com/api/?name=<?php echo urlencode($user['name'] ?? 'Vendor'); ?>&background=6366f1&color=fff"
+                    class="rounded-circle mr-3" style="width: 80px; height: 80px; object-fit: cover; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"
                     alt="Profile Picture">
                 <div>
                     <input type="file" class="form-control-file" name="profile_picture" accept="image/*" disabled>
-                    <small class="form-text text-muted">Profile picture upload is demo only.</small>
+                    <small class="form-text text-muted mt-2">Profile picture upload is demo only.</small>
                 </div>
             </div>
         </div>
-        <div class="card mb-4">
-            <div class="card-header"><strong>Personal Info</strong></div>
-            <div class="card-body row">
+        <div class="card shadow-sm border-0 mb-4" style="border-radius: var(--j-radius-lg); overflow: hidden;">
+            <div class="card-header bg-white border-0 pt-4 pb-2 px-4">
+                <strong style="font-family: var(--j-font-heading); font-size: 1.1rem; color: #4b5563;">Personal Info</strong>
+            </div>
+            <div class="card-body row px-4 pb-4 pt-2">
                 <div class="form-group col-md-4">
-                    <label for="name">Full Name</label>
+                    <label for="name" style="font-weight: 500; color: #374151;">Full Name</label>
                     <input type="text" class="form-control" id="name" name="name"
-                        value="<?php echo htmlspecialchars($user['name'] ?? ''); ?>" required>
+                        value="<?php echo htmlspecialchars($user['name'] ?? ''); ?>" style="border-radius: 8px; border: 1px solid #e5e7eb; padding: 10px 15px;" required>
                 </div>
                 <div class="form-group col-md-4">
-                    <label for="email">Email</label>
+                    <label for="email" style="font-weight: 500; color: #374151;">Email</label>
                     <input type="email" class="form-control" id="email" name="email"
-                        value="<?php echo htmlspecialchars($user['email'] ?? ''); ?>">
+                        value="<?php echo htmlspecialchars($user['email'] ?? ''); ?>" style="border-radius: 8px; border: 1px solid #e5e7eb; padding: 10px 15px;">
                 </div>
                 <div class="form-group col-md-4">
-                    <label for="phone">Phone</label>
+                    <label for="phone" style="font-weight: 500; color: #374151;">Phone</label>
                     <input type="text" class="form-control" id="phone" name="phone"
-                        value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>" required>
+                        value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>" style="border-radius: 8px; border: 1px solid #e5e7eb; padding: 10px 15px;" required>
                 </div>
             </div>
         </div>
-        <div class="card mb-4">
-            <div class="card-header"><strong>Business Info</strong></div>
-            <div class="card-body row">
+        <div class="card shadow-sm border-0 mb-4" style="border-radius: var(--j-radius-lg); overflow: hidden;">
+            <div class="card-header bg-white border-0 pt-4 pb-2 px-4">
+                <strong style="font-family: var(--j-font-heading); font-size: 1.1rem; color: #4b5563;">Business Info</strong>
+            </div>
+            <div class="card-body row px-4 pb-4 pt-2">
                 <div class="form-group col-md-6">
-                    <label for="business_name">Business Name</label>
+                    <label for="business_name" style="font-weight: 500; color: #374151;">Business Name</label>
                     <input type="text" class="form-control" id="business_name" name="business_name"
-                        value="<?php echo htmlspecialchars($vendorDetails['business_name'] ?? ''); ?>" required>
+                        value="<?php echo htmlspecialchars($vendorDetails['business_name'] ?? ''); ?>" style="border-radius: 8px; border: 1px solid #e5e7eb; padding: 10px 15px;" required>
                 </div>
                 <div class="form-group col-md-6">
-                    <label>Status</label>
+                    <label style="font-weight: 500; color: #374151;">Status</label>
                     <input type="text" class="form-control"
-                        value="<?php echo ucfirst($vendorDetails['status'] ?? 'pending'); ?>" readonly>
+                        value="<?php echo ucfirst($vendorDetails['status'] ?? 'pending'); ?>" style="border-radius: 8px; border: 1px solid #e5e7eb; padding: 10px 15px; background-color: #f9fafb;" readonly>
                 </div>
             </div>
         </div>
-        <div class="card mb-4">
-            <div class="card-header"><strong>Change Password</strong></div>
-            <div class="card-body row">
+        <div class="card shadow-sm border-0 mb-4" style="border-radius: var(--j-radius-lg); overflow: hidden;">
+            <div class="card-header bg-white border-0 pt-4 pb-2 px-4">
+                <strong style="font-family: var(--j-font-heading); font-size: 1.1rem; color: #4b5563;">Change Password</strong>
+            </div>
+            <div class="card-body row px-4 pb-4 pt-2">
                 <div class="form-group col-md-4">
-                    <label for="current_password">Current Password</label>
-                    <input type="password" class="form-control" id="current_password" name="current_password">
+                    <label for="current_password" style="font-weight: 500; color: #374151;">Current Password</label>
+                    <input type="password" class="form-control" id="current_password" name="current_password" style="border-radius: 8px; border: 1px solid #e5e7eb; padding: 10px 15px;">
                 </div>
                 <div class="form-group col-md-4">
-                    <label for="new_password">New Password</label>
-                    <input type="password" class="form-control" id="new_password" name="new_password">
+                    <label for="new_password" style="font-weight: 500; color: #374151;">New Password</label>
+                    <input type="password" class="form-control" id="new_password" name="new_password" style="border-radius: 8px; border: 1px solid #e5e7eb; padding: 10px 15px;">
                 </div>
                 <div class="form-group col-md-4">
-                    <label for="confirm_password">Confirm New Password</label>
-                    <input type="password" class="form-control" id="confirm_password" name="confirm_password">
+                    <label for="confirm_password" style="font-weight: 500; color: #374151;">Confirm New Password</label>
+                    <input type="password" class="form-control" id="confirm_password" name="confirm_password" style="border-radius: 8px; border: 1px solid #e5e7eb; padding: 10px 15px;">
                 </div>
             </div>
         </div>
-        <button type="submit" class="btn btn-success btn-lg">Save Changes</button>
+        <button type="submit" class="btn btn-primary" style="background: var(--j-primary); border-radius: 50px; font-weight: 600; padding: 10px 30px; border: none; box-shadow: 0 4px 6px rgba(99,102,241,0.2);">Save Changes</button>
     </form>
 </div>
 <?php

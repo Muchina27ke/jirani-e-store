@@ -1,405 +1,324 @@
 <?php
-require_once __DIR__ . '/config/config.php';
+// navbar.php — must be included AFTER config.php is loaded by the parent page
+// (config.php already calls session_start and provides $conn, $cart, $auth etc.)
 
-$db = getDbConnection();
-
-require_once __DIR__ . '/includes/Navigation.php';
-require_once __DIR__ . '/includes/Auth.php';
-
-// Get current user if logged in
-$auth = new Auth($db);
-$currentUser = null;
-if ($auth->isLoggedIn()) {
-    $currentUser = $auth->getUser();
+// Get cart count — reuse existing $cart object from config if available
+$_cartCount = 0;
+if (isset($_SESSION['user_id'])) {
+    try {
+        // $cart is already instantiated in config.php
+        $_cartCount = isset($cart) ? $cart->getCartCount() : 0;
+    } catch (Exception $e) { $_cartCount = 0; }
 }
 
-// Initialize navigation
-$navigation = new Navigation($db, $currentUser, $currentPage ?? '');
+// Current page for active states
+$_currentPage = $currentPage ?? basename($_SERVER['PHP_SELF'], '.php');
+
+// User initials for avatar
+$_userInitials = '';
+if (isset($_SESSION['user_id'])) {
+    $nameStr = $_SESSION['name'] ?? '';
+    if (empty($nameStr) && isset($auth) && method_exists($auth, 'getUser')) {
+        $u = $auth->getUser();
+        $nameStr = $u['name'] ?? 'U';
+    }
+    if (empty($nameStr)) $nameStr = 'U';
+    $parts = explode(' ', trim($nameStr));
+    $_userInitials = strtoupper(substr($parts[0], 0, 1) . (isset($parts[1]) ? substr($parts[1], 0, 1) : ''));
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo $pageTitle ?? 'Jirani - Local Marketplace'; ?></title>
+    <title><?php echo isset($pageTitle) ? htmlspecialchars($pageTitle) . ' — Jirani' : 'Jirani · Local Marketplace'; ?></title>
+    <link rel="icon" type="image/jpeg" href="<?php echo SITE_URL; ?>title_logo.jpg">
 
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-    <!-- Custom Styles -->
-    <link rel="stylesheet" href="css/hpgIndex.css">
-    <link rel="stylesheet" href="assets/css/style.css">
+    <!-- Jirani Design System -->
+    <link rel="stylesheet" href="<?php echo SITE_URL; ?>css/jirani-design-system.css">
 
-    <!-- Additional CSS -->
-    <?php if (isset($additionalCSS)): ?>
-        <?php foreach ($additionalCSS as $css): ?>
-            <link rel="stylesheet" href="<?php echo $css; ?>">
-        <?php endforeach; ?>
-    <?php endif; ?>
+    <!-- Page-specific CSS -->
+    <?php if (isset($additionalCSS)): foreach ($additionalCSS as $css): ?>
+        <link rel="stylesheet" href="<?php echo htmlspecialchars($css); ?>">
+    <?php endforeach; endif; ?>
 
-    <style>
-        /* Enhanced navbar styles */
-        .navbar {
-            box-shadow: 0 2px 4px rgba(0, 0, 0, .08);
-            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-        }
-
-        .navbar-brand {
-            font-weight: 700;
-            font-size: 1.5rem;
-        }
-
-        .nav-link {
-            font-weight: 500;
-            transition: all 0.3s ease;
-            border-radius: 6px;
-            margin: 0 2px;
-        }
-
-        .nav-link:hover {
-            background-color: rgba(0, 123, 255, 0.1);
-            color: 0 2px 4px rgba(0, 123, 255, 0.3) !important;
-        }
-
-        .nav-link.active {
-            background-color: 0 2px 4px rgba(0, 123, 255, 0.3);
-            color: #ffffff !important;
-        }
-
-        .dropdown-menu {
-            border: none;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, .15);
-            border-radius: 8px;
-        }
-
-        .dropdown-item {
-            padding: 8px 16px;
-            transition: all 0.2s ease;
-        }
-
-        .dropdown-item:hover {
-            background-color: #f8f9fa;
-            color: 0 2px 4px rgba(0, 123, 255, 0.3);
-        }
-
-        .badge {
-            font-size: 0.7rem;
-            padding: 0.25em 0.5em;
-        }
-
-        .btn-outline-primary {
-            border-width: 2px;
-            font-weight: 600;
-        }
-
-        .btn-primary {
-            font-weight: 600;
-            box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
-        }
-
-        .input-group .form-control {
-            border-right: none;
-        }
-
-        .input-group .btn {
-            border-left: none;
-        }
-
-        /* Product card enhancements */
-        .hover-card {
-            transition: all 0.3s ease;
-            border-radius: 12px;
-            border: 1px solid #e9ecef;
-        }
-
-        .hover-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-            border-color: 0 2px 4px rgba(0, 123, 255, 0.3);
-        }
-
-        .product-image {
-            border-radius: 8px;
-            object-fit: cover;
-        }
-
-        .price-tag {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-            color: white;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-weight: 600;
-        }
-
-        /* Loading spinner */
-        .spinner-border-sm {
-            width: 1rem;
-            height: 1rem;
-        }
-
-        /* Alert enhancements */
-        .alert {
-            border: none;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, .1);
-        }
-
-        /* Footer enhancements */
-        footer {
-            background: linear-gradient(135deg, #343a40 0%, #495057 100%);
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .navbar-brand {
-                font-size: 1.2rem;
-            }
-
-            .nav-link {
-                margin: 2px 0;
-            }
-
-            .hover-card:hover {
-                transform: none;
-            }
-        }
-    </style>
+    <!-- Page-specific head content -->
+    <?php echo $pageHead ?? ''; ?>
 </head>
-
 <body>
-    <!-- Navigation -->
-    <?php echo $navigation->renderCustomerNav(); ?>
 
-    <!-- Main Content -->
-    <main>
-        <!-- Alert Messages -->
-        <?php if (isset($_SESSION['success'])): ?>
-            <div class="container mt-3">
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <i class="fas fa-check-circle me-2"></i>
-                    <?php
-                    echo $_SESSION['success'];
-                    unset($_SESSION['success']);
-                    ?>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            </div>
-        <?php endif; ?>
+<!-- ══ NAVBAR ══════════════════════════════════════════════ -->
+<nav class="j-navbar" id="mainNavbar">
+    <div class="j-container" style="display:flex;align-items:center;gap:16px;height:68px;">
 
-        <?php if (isset($_SESSION['error'])): ?>
-            <div class="container mt-3">
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <i class="fas fa-exclamation-circle me-2"></i>
-                    <?php
-                    echo $_SESSION['error'];
-                    unset($_SESSION['error']);
-                    ?>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            </div>
-        <?php endif; ?>
+        <!-- Brand -->
+        <a href="<?php echo SITE_URL; ?>index.php" class="j-navbar-brand">
+            <div class="brand-icon"><i class="fas fa-seedling"></i></div>
+            Jirani
+        </a>
 
-        <?php if (isset($_SESSION['warning'])): ?>
-            <div class="container mt-3">
-                <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                    <i class="fas fa-exclamation-triangle me-2"></i>
-                    <?php
-                    echo $_SESSION['warning'];
-                    unset($_SESSION['warning']);
-                    ?>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            </div>
-        <?php endif; ?>
+        <!-- Search -->
+        <form class="j-nav-search" action="<?php echo SITE_URL; ?>search.php" method="GET" role="search">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" name="q" placeholder="Search products, vendors…"
+                   value="<?php echo htmlspecialchars($_GET['q'] ?? ''); ?>"
+                   autocomplete="off" id="globalSearch">
+        </form>
 
-        <?php if (isset($_SESSION['info'])): ?>
-            <div class="container mt-3">
-                <div class="alert alert-info alert-dismissible fade show" role="alert">
-                    <i class="fas fa-info-circle me-2"></i>
-                    <?php
-                    echo $_SESSION['info'];
-                    unset($_SESSION['info']);
-                    ?>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            </div>
-        <?php endif; ?>
+        <!-- Category Links (hidden on mobile) -->
+        <ul class="j-nav-links" style="flex-shrink:0;">
+            <li><a href="<?php echo SITE_URL; ?>fruits.php" class="<?php echo $_currentPage==='fruits'?'active':''; ?>">
+                <i class="fas fa-apple-alt"></i> Fruits
+            </a></li>
+            <li><a href="<?php echo SITE_URL; ?>vegetables.php" class="<?php echo $_currentPage==='vegetables'?'active':''; ?>">
+                <i class="fas fa-carrot"></i> Veggies
+            </a></li>
+            <li><a href="<?php echo SITE_URL; ?>handcrafts.php" class="<?php echo $_currentPage==='handcrafts'?'active':''; ?>">
+                <i class="fas fa-hands"></i> Crafts
+            </a></li>
+        </ul>
 
-        <!-- Page Content -->
-        <?php echo $content ?? ''; ?>
-    </main>
+        <!-- Actions -->
+        <div class="j-nav-actions">
+            <?php if (isset($_SESSION['user_id'])): ?>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+                <!-- Wishlist -->
+                <a href="<?php echo SITE_URL; ?>wishlist.php" class="j-nav-icon-btn" title="Wishlist"
+                   style="<?php echo $_currentPage==='wishlist'?'color:var(--j-primary);background:var(--j-primary-glass)':''; ?>">
+                    <i class="fas fa-heart"></i>
+                </a>
 
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+                <!-- Cart -->
+                <a href="<?php echo SITE_URL; ?>cart.php" class="j-nav-icon-btn" title="Cart" id="navCartBtn"
+                   style="<?php echo $_currentPage==='cart'?'color:var(--j-primary);background:var(--j-primary-glass)':''; ?>">
+                    <i class="fas fa-shopping-cart"></i>
+                    <?php if ($_cartCount > 0): ?>
+                        <span class="j-nav-badge" id="navCartCount"><?php echo $_cartCount; ?></span>
+                    <?php else: ?>
+                        <span class="j-nav-badge" id="navCartCount" style="display:none;">0</span>
+                    <?php endif; ?>
+                </a>
 
-    <!-- Custom JS -->
-    <script src="js/location.js"></script>
-    <script src="assets/js/payment.js"></script>
-
-    <!-- Additional JS -->
-    <?php if (isset($additionalJS)): ?>
-        <?php foreach ($additionalJS as $js): ?>
-            <script src="<?php echo $js; ?>"></script>
-        <?php endforeach; ?>
-    <?php endif; ?>
-
-    <!-- Page-specific scripts -->
-    <?php if (isset($pageScripts)): ?>
-        <script>
-            <?php echo $pageScripts; ?>
-        </script>
-    <?php endif; ?>
-
-    <script>
-        // Enhanced cart functionality
-        function addToCart(productId, quantity = 1) {
-            const btn = event.target;
-            const originalText = btn.innerHTML;
-
-            // Show loading state
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Adding...';
-            btn.disabled = true;
-
-            fetch('api/cart/add.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    product_id: productId,
-                    quantity: quantity
-                })
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Update cart count in navbar
-                        updateCartCount();
-
-                        // Show success message
-                        showToast('Product added to cart!', 'success');
-
-                        // Reset button
-                        btn.innerHTML = '<i class="fas fa-check me-1"></i>Added!';
-                        btn.classList.remove('btn-primary');
-                        btn.classList.add('btn-success');
-
-                        setTimeout(() => {
-                            btn.innerHTML = originalText;
-                            btn.classList.remove('btn-success');
-                            btn.classList.add('btn-primary');
-                            btn.disabled = false;
-                        }, 2000);
-                    } else {
-                        showToast(data.message || 'Failed to add to cart', 'error');
-                        btn.innerHTML = originalText;
-                        btn.disabled = false;
-                    }
-                })
-                .catch(error => {
-                    showToast('An error occurred', 'error');
-                    btn.innerHTML = originalText;
-                    btn.disabled = false;
-                });
-        }
-
-        function addToWishlist(productId) {
-            const btn = event.target;
-            const icon = btn.querySelector('i');
-
-            fetch('api/wishlist/add.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    product_id: productId
-                })
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        icon.classList.remove('far');
-                        icon.classList.add('fas');
-                        btn.classList.add('text-danger');
-                        showToast('Added to wishlist!', 'success');
-                    } else {
-                        showToast(data.message || 'Failed to add to wishlist', 'error');
-                    }
-                });
-        }
-
-        function updateCartCount() {
-            fetch('api/cart/count.php')
-                .then(response => response.json())
-                .then(data => {
-                    const cartBadge = document.querySelector('.nav-link .badge');
-                    if (cartBadge) {
-                        cartBadge.textContent = data.count;
-                        if (data.count > 0) {
-                            cartBadge.style.display = 'inline';
-                        }
-                    }
-                });
-        }
-
-        function showToast(message, type = 'info') {
-            const toastContainer = document.getElementById('toastContainer') || createToastContainer();
-
-            const toast = document.createElement('div');
-            toast.className = `toast align-items-center text-white bg-${type === 'success' ? 'success' : type === 'error' ? 'danger' : 'info'} border-0`;
-            toast.setAttribute('role', 'alert');
-            toast.innerHTML = `
-                <div class="d-flex">
-                    <div class="toast-body">
-                        <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'exclamation-triangle' : 'info'} me-2"></i>
-                        ${message}
+                <!-- User dropdown -->
+                <div style="position:relative;">
+                    <div class="j-user-avatar" id="userAvatarBtn" onclick="toggleDropdown()" title="Account">
+                        <?php echo htmlspecialchars($_userInitials ?: 'U'); ?>
                     </div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                    <div class="j-dropdown" id="userDropdown">
+                        <div style="padding:12px 16px 8px;border-bottom:1px solid var(--j-border-light);margin-bottom:4px;">
+                            <div style="font-weight:700;font-size:0.9rem;color:var(--j-text);"><?php echo htmlspecialchars($_SESSION['name'] ?? 'My Account'); ?></div>
+                            <div style="font-size:0.78rem;color:var(--j-text-muted);"><?php echo htmlspecialchars($_SESSION['email'] ?? ''); ?></div>
+                        </div>
+                        <a href="<?php echo SITE_URL; ?>profile.php"><i class="fas fa-user"></i> Profile</a>
+                        <a href="<?php echo SITE_URL; ?>orders.php"><i class="fas fa-box"></i> My Orders</a>
+                        <a href="<?php echo SITE_URL; ?>wishlist.php"><i class="fas fa-heart"></i> Wishlist</a>
+                        <a href="<?php echo SITE_URL; ?>account-settings.php"><i class="fas fa-cog"></i> Account Settings</a>
+                        <?php if (isset($_SESSION['user_role']) && in_array($_SESSION['user_role'], ['vendor'])): ?>
+                            <hr>
+                            <a href="<?php echo SITE_URL; ?>seller/dashboard.php" style="color:var(--j-primary);"><i class="fas fa-store"></i> Seller Dashboard</a>
+                        <?php endif; ?>
+                        <?php if (isset($_SESSION['user_role']) && in_array($_SESSION['user_role'], ['admin','super_admin'])): ?>
+                            <hr>
+                            <a href="<?php echo SITE_URL; ?>admin/index.php" style="color:var(--j-accent);"><i class="fas fa-shield-alt"></i> Admin Panel</a>
+                        <?php endif; ?>
+                        <hr>
+                        <a href="<?php echo SITE_URL; ?>Signin/logout.php" style="color:var(--j-danger);"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </div>
                 </div>
-            `;
 
-            toastContainer.appendChild(toast);
+            <?php else: ?>
+                <a href="<?php echo SITE_URL; ?>Signin/index.php" class="j-btn j-btn-ghost j-btn-sm">Sign In</a>
+                <a href="<?php echo SITE_URL; ?>Register/index.php" class="j-btn j-btn-primary j-btn-sm">Get Started</a>
+            <?php endif; ?>
 
-            const bsToast = new bootstrap.Toast(toast);
-            bsToast.show();
+            <!-- Mobile toggle -->
+            <button class="j-nav-toggle" id="mobileNavToggle" onclick="toggleMobileNav()" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </div>
 
-            // Remove toast element after it's hidden
-            toast.addEventListener('hidden.bs.toast', () => {
-                toast.remove();
-            });
+    <!-- Mobile menu -->
+    <div id="mobileNav" style="display:none;border-top:1px solid var(--j-border-light);padding:16px;background:white;">
+        <form action="<?php echo SITE_URL; ?>search.php" method="GET" style="margin-bottom:16px;">
+            <div class="j-input-icon-wrap">
+                <i class="fas fa-search input-icon"></i>
+                <input type="text" name="q" class="j-input" placeholder="Search products…" value="<?php echo htmlspecialchars($_GET['q'] ?? ''); ?>">
+            </div>
+        </form>
+        <div style="display:flex;flex-direction:column;gap:4px;">
+            <a href="<?php echo SITE_URL; ?>index.php" style="padding:10px 14px;border-radius:8px;color:var(--j-text);display:flex;align-items:center;gap:10px;"><i class="fas fa-home" style="width:16px;color:var(--j-text-muted);"></i> Home</a>
+            <a href="<?php echo SITE_URL; ?>fruits.php" style="padding:10px 14px;border-radius:8px;color:var(--j-text);display:flex;align-items:center;gap:10px;"><i class="fas fa-apple-alt" style="width:16px;color:var(--j-text-muted);"></i> Fruits</a>
+            <a href="<?php echo SITE_URL; ?>vegetables.php" style="padding:10px 14px;border-radius:8px;color:var(--j-text);display:flex;align-items:center;gap:10px;"><i class="fas fa-carrot" style="width:16px;color:var(--j-text-muted);"></i> Vegetables</a>
+            <a href="<?php echo SITE_URL; ?>handcrafts.php" style="padding:10px 14px;border-radius:8px;color:var(--j-text);display:flex;align-items:center;gap:10px;"><i class="fas fa-hands" style="width:16px;color:var(--j-text-muted);"></i> Handcrafts</a>
+            <?php if (isset($_SESSION['user_id'])): ?>
+                <hr style="border-color:var(--j-border-light);">
+                <a href="<?php echo SITE_URL; ?>cart.php" style="padding:10px 14px;border-radius:8px;color:var(--j-text);display:flex;align-items:center;gap:10px;"><i class="fas fa-shopping-cart" style="width:16px;color:var(--j-text-muted);"></i> Cart (<?php echo $_cartCount; ?>)</a>
+                <a href="<?php echo SITE_URL; ?>orders.php" style="padding:10px 14px;border-radius:8px;color:var(--j-text);display:flex;align-items:center;gap:10px;"><i class="fas fa-box" style="width:16px;color:var(--j-text-muted);"></i> My Orders</a>
+                <a href="<?php echo SITE_URL; ?>Signin/logout.php" style="padding:10px 14px;border-radius:8px;color:var(--j-danger);display:flex;align-items:center;gap:10px;"><i class="fas fa-sign-out-alt" style="width:16px;"></i> Logout</a>
+            <?php else: ?>
+                <hr style="border-color:var(--j-border-light);">
+                <a href="<?php echo SITE_URL; ?>Signin/index.php" class="j-btn j-btn-outline j-btn-full" style="margin-bottom:8px;">Sign In</a>
+                <a href="<?php echo SITE_URL; ?>Register/index.php" class="j-btn j-btn-primary j-btn-full">Get Started</a>
+            <?php endif; ?>
+        </div>
+    </div>
+</nav>
+
+<!-- ══ Toast Container ══════════════════════════════════════ -->
+<div class="j-toast-container" id="jToastContainer"></div>
+
+<!-- ══ MAIN CONTENT ════════════════════════════════════════ -->
+<main id="mainContent">
+
+<?php
+// Show session flash messages as toasts (they get shown via JS after DOM load)
+$_flashMessages = [];
+foreach (['success','error','warning','info'] as $_ft) {
+    if (isset($_SESSION[$_ft])) {
+        $_flashMessages[] = ['type' => $_ft, 'msg' => $_SESSION[$_ft]];
+        unset($_SESSION[$_ft]);
+    }
+}
+?>
+
+<!-- Page-specific scripts will close </main></body></html> via footer.php -->
+
+<script>
+// ── Dropdown toggle ───────────────────────────────────────
+function toggleDropdown() {
+    const d = document.getElementById('userDropdown');
+    d.classList.toggle('show');
+}
+document.addEventListener('click', e => {
+    const btn = document.getElementById('userAvatarBtn');
+    const dd  = document.getElementById('userDropdown');
+    if (dd && btn && !btn.contains(e.target) && !dd.contains(e.target)) {
+        dd.classList.remove('show');
+    }
+});
+
+// ── Mobile nav ────────────────────────────────────────────
+function toggleMobileNav() {
+    const nav = document.getElementById('mobileNav');
+    const isOpen = nav.style.display !== 'none';
+    nav.style.display = isOpen ? 'none' : 'block';
+    const spans = document.querySelectorAll('.j-nav-toggle span');
+    if (!isOpen) {
+        spans[0].style.transform = 'rotate(45deg) translate(5px, 5px)';
+        spans[1].style.opacity = '0';
+        spans[2].style.transform = 'rotate(-45deg) translate(5px, -5px)';
+    } else {
+        spans.forEach(s => { s.style.transform = ''; s.style.opacity = ''; });
+    }
+}
+
+// ── Toast system ──────────────────────────────────────────
+function jToast(message, type = 'success', duration = 3500) {
+    const c = document.getElementById('jToastContainer');
+    if (!c) return;
+    const icons = { success:'fa-check-circle', error:'fa-exclamation-circle', warning:'fa-exclamation-triangle', info:'fa-info-circle' };
+    const t = document.createElement('div');
+    t.className = `j-toast ${type}`;
+    t.innerHTML = `<i class="fas ${icons[type]||icons.info}" style="flex-shrink:0;font-size:1rem;"></i><span style="flex:1;">${message}</span><button onclick="this.parentElement.remove()" style="background:none;border:none;color:rgba(255,255,255,0.6);cursor:pointer;font-size:1rem;padding:0;margin-left:8px;">×</button>`;
+    c.appendChild(t);
+    setTimeout(() => { t.classList.add('hiding'); setTimeout(() => t.remove(), 300); }, duration);
+}
+
+// ── Cart count updater ────────────────────────────────────
+function updateCartCount(count) {
+    const badge = document.getElementById('navCartCount');
+    if (!badge) return;
+    if (count > 0) {
+        badge.textContent = count;
+        badge.style.display = 'flex';
+    } else {
+        badge.style.display = 'none';
+    }
+}
+
+function refreshCartCount() {
+    fetch('<?php echo SITE_URL; ?>api/cart_api.php?action=count')
+        .then(r => r.json())
+        .then(d => { if (d.count !== undefined) updateCartCount(d.count); })
+        .catch(() => {});
+}
+
+// ── Add to cart global function ───────────────────────────
+function addToCart(productId, qty = 1, btn) {
+    const origHtml = btn ? btn.innerHTML : '';
+    if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>'; }
+
+    fetch('<?php echo SITE_URL; ?>api/cart_api.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'add', product_id: productId, quantity: qty })
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (d.success) {
+            jToast('Added to cart!', 'success');
+            refreshCartCount();
+            if (btn) {
+                btn.innerHTML = '<i class="fas fa-check"></i>';
+                setTimeout(() => { btn.innerHTML = origHtml; btn.disabled = false; }, 2000);
+            }
+        } else {
+            jToast(d.message || 'Could not add to cart', 'error');
+            if (btn) { btn.innerHTML = origHtml; btn.disabled = false; }
         }
+    })
+    .catch(() => {
+        jToast('Network error. Please try again.', 'error');
+        if (btn) { btn.innerHTML = origHtml; btn.disabled = false; }
+    });
+}
 
-        function createToastContainer() {
-            const container = document.createElement('div');
-            container.id = 'toastContainer';
-            container.className = 'toast-container position-fixed top-0 end-0 p-3';
-            container.style.zIndex = '1055';
-            document.body.appendChild(container);
-            return container;
+// ── Toggle wishlist ───────────────────────────────────────
+function toggleWishlist(productId, btn) {
+    fetch('<?php echo SITE_URL; ?>api/wishlist/toggle.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ product_id: productId })
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (d.success) {
+            if (btn) btn.classList.toggle('active');
+            jToast(d.message || 'Wishlist updated', 'success');
+        } else if (d.redirect) {
+            window.location.href = d.redirect;
+        } else {
+            jToast(d.message || 'Error', 'error');
         }
+    })
+    .catch(() => jToast('Network error', 'error'));
+}
 
-        // Initialize on page load
-        document.addEventListener('DOMContentLoaded', function () {
-            updateCartCount();
+// ── Flash messages via toast ──────────────────────────────
+<?php foreach ($_flashMessages as $fm): ?>
+document.addEventListener('DOMContentLoaded', () => jToast(<?php echo json_encode($fm['msg']); ?>, <?php echo json_encode($fm['type']); ?>));
+<?php endforeach; ?>
 
-            // Auto-hide alerts after 5 seconds
-            setTimeout(() => {
-                const alerts = document.querySelectorAll('.alert');
-                alerts.forEach(alert => {
-                    const bsAlert = new bootstrap.Alert(alert);
-                    bsAlert.close();
-                });
-            }, 5000);
-        });
-    </script>
-</body>
+// Refresh cart count on load
+document.addEventListener('DOMContentLoaded', refreshCartCount);
 
-</html>
+// Navbar scroll effect
+window.addEventListener('scroll', () => {
+    const nav = document.getElementById('mainNavbar');
+    if (window.scrollY > 10) {
+        nav.style.boxShadow = '0 4px 24px rgba(0,0,0,0.1)';
+    } else {
+        nav.style.boxShadow = '0 2px 20px rgba(0,0,0,0.06)';
+    }
+});
+</script>

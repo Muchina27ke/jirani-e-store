@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $auth = new Auth($conn);
         $result = $auth->resetPassword($token, $password);
         if ($result['success']) {
-            $success = 'Your password has been reset successfully. <a href="Signin/index.php">Login here</a>.';
+            $success = 'Your password has been reset successfully. <a href="' . SITE_URL . 'Signin/index.php">Login here</a>.';
         } else {
             $error = $result['message'];
         }

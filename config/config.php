@@ -62,6 +62,9 @@ define('MAIL_FROM_NAME', $globalSettings['mail_from_name'] ?? 'Jirani');
 define('DARAJA_CONSUMER_KEY', $globalSettings['daraja_consumer_key'] ?? '');
 define('DARAJA_CONSUMER_SECRET', base64_decode($globalSettings['daraja_consumer_secret'] ?? ''));
 define('DARAJA_ENVIRONMENT', $globalSettings['daraja_environment'] ?? 'sandbox');
+// When true, the STK push is simulated locally (no real Safaricom API calls)
+// This is automatically ON when DARAJA_ENVIRONMENT is 'sandbox'
+define('MPESA_SIMULATE', (defined('DARAJA_ENVIRONMENT') ? DARAJA_ENVIRONMENT : 'sandbox') !== 'production');
 define('DARAJA_SHORTCODE', $globalSettings['daraja_shortcode'] ?? '174379');
 define('DARAJA_PASSKEY', $globalSettings['daraja_passkey'] ?? '');
 define('DARAJA_INITIATOR_NAME', $globalSettings['daraja_initiator_name'] ?? 'testapi');

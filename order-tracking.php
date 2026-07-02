@@ -359,10 +359,10 @@ if ($order) {
                             </div>
 
                             <div class="text-center mt-4">
-                                <a href="index.php" class="btn btn-secondary">
+                                <a href="<?php echo SITE_URL; ?>" class="btn btn-secondary">
                                     <i class="fas fa-arrow-left"></i> Back to Home
                                 </a>
-                                <a href="order-tracking.php" class="btn btn-primary">
+                                <a href="<?php echo SITE_URL; ?>order-tracking.php" class="btn btn-primary">
                                     <i class="fas fa-search"></i> Track Another Order
                                 </a>
                             </div>

@@ -52,6 +52,45 @@ $pageTitle = $pageTitle ?? 'Vendor Dashboard';
             <link rel="stylesheet" href="<?php echo $css; ?>">
         <?php endforeach; ?>
     <?php endif; ?>
+
+    <!-- Jirani Premium Admin Override -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --j-primary: #2A5C3D;
+            --j-primary-dark: #1e4a2f;
+            --j-accent: #FFA726;
+            --j-bg: #F7F8F5;
+        }
+        body { font-family: 'Inter', sans-serif; background-color: var(--j-bg); }
+        h1, h2, h3, h4, h5, h6, .brand-text { font-family: 'Outfit', sans-serif; font-weight: 700; }
+        
+        /* Sidebar branding */
+        .sidebar-dark-primary { background-color: var(--j-primary-dark) !important; }
+        .sidebar-dark-primary .nav-sidebar>.nav-item>.nav-link.active,
+        .sidebar-light-primary .nav-sidebar>.nav-item>.nav-link.active {
+            background-color: var(--j-primary) !important;
+            color: #fff !important;
+        }
+        .brand-link { border-bottom: 1px solid rgba(255,255,255,0.1) !important; background: var(--j-primary) !important; color: white !important; }
+        
+        /* Buttons & Links */
+        .btn-primary { background-color: var(--j-primary); border-color: var(--j-primary); }
+        .btn-primary:hover { background-color: var(--j-primary-dark); border-color: var(--j-primary-dark); }
+        a { color: var(--j-primary); }
+        a:hover { color: var(--j-primary-dark); }
+        
+        /* Cards */
+        .card-primary.card-outline { border-top: 3px solid var(--j-primary); }
+        .bg-info { background-color: var(--j-primary) !important; }
+        .bg-success { background-color: #22c55e !important; }
+        .bg-warning { background-color: var(--j-accent) !important; }
+        
+        .main-header { border-bottom: 1px solid rgba(0,0,0,0.05); box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .content-wrapper { background-color: var(--j-bg); }
+        .card { border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: none; }
+        .card-header { border-bottom: 1px solid rgba(0,0,0,0.05); background-color: #fff; border-radius: 12px 12px 0 0 !important; }
+    </style>
 </head>
 
 <body class="hold-transition sidebar-mini layout-fixed">

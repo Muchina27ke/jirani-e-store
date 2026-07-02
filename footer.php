@@ -1,322 +1,83 @@
-<?php
-require_once __DIR__ . '/config/config.php';
+<?php // Footer include — close </main> then render footer ?>
+</main>
 
-$db = getDbConnection();
+<!-- ══ FOOTER ═══════════════════════════════════════════════ -->
+<footer class="j-footer">
+    <div class="j-container">
+        <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;padding-bottom:0;">
 
-require_once __DIR__ . '/includes/Navigation.php';
-
-// Initialize footer
-$footer = new Footer($db);
-?>
-
-<!-- Footer -->
-<style>
-    :root {
-        --jirani-primary: #2A5C3D;
-        --jirani-secondary: #FFA726;
-        --jirani-white: #FFFFFF;
-        --jirani-gray: #333333;
-    }
-
-    html,
-    body {
-        height: 100%;
-    }
-
-    body {
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-    }
-
-    main,
-    .container,
-    .orders-container,
-    .cart-container {
-        flex: 1 0 auto;
-    }
-
-    footer.jirani-footer {
-        color: var(--jirani-gray);
-        background: linear-gradient(135deg, var(--jirani-white) 0%, #f4f7f6 100%) !important;
-        border-top: 4px solid var(--jirani-primary);
-        position: relative;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        z-index: 100;
-        font-size: 1rem;
-    }
-
-    .jirani-footer a,
-    .jirani-footer p,
-    .jirani-footer span,
-    .jirani-footer h5,
-    .jirani-footer h6 {
-        color: var(--jirani-primary) !important;
-        text-shadow: none;
-        transition: color 0.2s;
-    }
-
-    .jirani-footer a:hover {
-        color: var(--jirani-secondary) !important;
-        text-decoration: underline;
-    }
-
-    .jirani-footer .text-primary {
-        color: var(--jirani-primary) !important;
-    }
-
-    .jirani-footer .footer-logo {
-        height: 40px;
-        margin-right: 0.5rem;
-    }
-
-    .jirani-footer .social-icons a {
-        color: var(--jirani-primary) !important;
-        font-size: 1.5rem;
-        margin-right: 0.5rem;
-        transition: color 0.2s;
-    }
-
-    .jirani-footer .social-icons a:hover {
-        color: var(--jirani-secondary) !important;
-    }
-
-    .jirani-footer .footer-bottom {
-        border-top: 1px solid #e0e0e0;
-        padding-top: 1rem;
-        font-size: 0.95rem;
-        color: #888;
-    }
-
-    @media (max-width: 768px) {
-        .jirani-footer {
-            font-size: 0.98rem;
-        }
-
-        .jirani-footer .footer-logo {
-            height: 32px;
-        }
-    }
-</style>
-<?php
-// Render the Jirani-themed footer
-ob_start();
-?>
-<footer class="jirani-footer py-5 mt-5">
-    <div class="container">
-        <div class="row">
-            <!-- Company Info -->
-            <div class="col-lg-4 col-md-6 mb-4">
-                <div class="d-flex align-items-center mb-3">
-                    <img src="<?php echo SITE_URL; ?>title_logo.jpg" alt="Jirani" class="footer-logo">
-                    <h5 class="mb-0 text-primary">Jirani</h5>
-                </div>
-                <p class="text-muted">
-                    Your trusted local marketplace connecting communities through commerce.<br>
-                    Discover fresh products from verified vendors in your neighborhood.
-                </p>
-                <div class="d-flex social-icons gap-3">
-                    <a href="#"><i class="fab fa-facebook"></i></a>
-                    <a href="#"><i class="fab fa-twitter"></i></a>
-                    <a href="#"><i class="fab fa-instagram"></i></a>
-                    <a href="#"><i class="fab fa-linkedin"></i></a>
+            <!-- Brand col -->
+            <div>
+                <div class="j-footer-brand">🌱 Jirani</div>
+                <p class="j-footer-desc">Connecting local farmers, crafters, and vendors with nearby customers. Fresh, local, and always community-first.</p>
+                <div class="j-social-links">
+                    <a href="#" class="j-social-link" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="j-social-link" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="j-social-link" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="j-social-link" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
                 </div>
             </div>
-            <!-- Quick Links -->
-            <div class="col-lg-2 col-md-6 mb-4">
-                <h6 class="text-primary mb-3">Quick Links</h6>
-                <ul class="list-unstyled">
-                    <li class="mb-2"><a href="<?php echo SITE_URL; ?>" class="text-muted text-decoration-none">Home</a>
-                    </li>
-                    <li class="mb-2"><a href="<?php echo SITE_URL; ?>about.php"
-                            class="text-muted text-decoration-none">About Us</a></li>
-                    <li class="mb-2"><a href="<?php echo SITE_URL; ?>categories.php"
-                            class="text-muted text-decoration-none">Categories</a></li>
-                    <li class="mb-2"><a href="<?php echo SITE_URL; ?>vendors.php"
-                            class="text-muted text-decoration-none">Vendors</a></li>
-                    <li class="mb-2"><a href="<?php echo SITE_URL; ?>contact_us.php"
-                            class="text-muted text-decoration-none">Contact</a></li>
-                </ul>
+
+            <!-- Shop col -->
+            <div>
+                <h5>Shop</h5>
+                <a href="<?php echo SITE_URL; ?>fruits.php"><i class="fas fa-apple-alt me-2" style="width:14px;opacity:.6;"></i>Fruits</a>
+                <a href="<?php echo SITE_URL; ?>vegetables.php"><i class="fas fa-carrot me-2" style="width:14px;opacity:.6;"></i>Vegetables</a>
+                <a href="<?php echo SITE_URL; ?>handcrafts.php"><i class="fas fa-hands me-2" style="width:14px;opacity:.6;"></i>Handcrafts</a>
+                <a href="<?php echo SITE_URL; ?>search.php"><i class="fas fa-search me-2" style="width:14px;opacity:.6;"></i>All Products</a>
             </div>
-            <!-- Categories -->
-            <div class="col-lg-2 col-md-6 mb-4">
-                <h6 class="text-primary mb-3">Categories</h6>
-                <ul class="list-unstyled">
-                    <li class="mb-2"><a href="<?php echo SITE_URL; ?>fruits.php"
-                            class="text-muted text-decoration-none">Fruits</a></li>
-                    <li class="mb-2"><a href="<?php echo SITE_URL; ?>vegetables.php"
-                            class="text-muted text-decoration-none">Vegetables</a></li>
-                    <li class="mb-2"><a href="<?php echo SITE_URL; ?>handcrafts.php"
-                            class="text-muted text-decoration-none">Handcrafts</a></li>
-                    <li class="mb-2"><a href="<?php echo SITE_URL; ?>electronics.php"
-                            class="text-muted text-decoration-none">Electronics</a></li>
-                    <li class="mb-2"><a href="<?php echo SITE_URL; ?>fashion.php"
-                            class="text-muted text-decoration-none">Fashion</a></li>
-                </ul>
+
+            <!-- Account col -->
+            <div>
+                <h5>Account</h5>
+                <a href="<?php echo SITE_URL; ?>profile.php"><i class="fas fa-user me-2" style="width:14px;opacity:.6;"></i>Profile</a>
+                <a href="<?php echo SITE_URL; ?>orders.php"><i class="fas fa-box me-2" style="width:14px;opacity:.6;"></i>My Orders</a>
+                <a href="<?php echo SITE_URL; ?>wishlist.php"><i class="fas fa-heart me-2" style="width:14px;opacity:.6;"></i>Wishlist</a>
+                <a href="<?php echo SITE_URL; ?>seller/dashboard.php"><i class="fas fa-store me-2" style="width:14px;opacity:.6;"></i>Sell on Jirani</a>
             </div>
-            <!-- Support -->
-            <div class="col-lg-2 col-md-6 mb-4">
-                <h6 class="text-primary mb-3">Support</h6>
-                <ul class="list-unstyled">
-                    <li class="mb-2"><a href="<?php echo SITE_URL; ?>help.php"
-                            class="text-muted text-decoration-none">Help Center</a></li>
-                    <li class="mb-2"><a href="<?php echo SITE_URL; ?>faq.php"
-                            class="text-muted text-decoration-none">FAQ</a></li>
-                    <li class="mb-2"><a href="<?php echo SITE_URL; ?>shipping.php"
-                            class="text-muted text-decoration-none">Shipping Info</a></li>
-                    <li class="mb-2"><a href="<?php echo SITE_URL; ?>returns.php"
-                            class="text-muted text-decoration-none">Returns</a></li>
-                    <li class="mb-2"><a href="<?php echo SITE_URL; ?>track-order.php"
-                            class="text-muted text-decoration-none">Track Order</a></li>
-                </ul>
-            </div>
-            <!-- Contact Info -->
-            <div class="col-lg-2 col-md-6 mb-4">
-                <h6 class="text-primary mb-3">Contact Info</h6>
-                <ul class="list-unstyled">
-                    <li class="mb-2 text-muted"><i class="fas fa-phone me-2"></i>+254 700 000 000</li>
-                    <li class="mb-2 text-muted"><i class="fas fa-envelope me-2"></i>support@jirani.com</li>
-                    <li class="mb-2 text-muted"><i class="fas fa-map-marker-alt me-2"></i>Nairobi, Kenya</li>
-                    <li class="mb-2 text-muted"><i class="fas fa-clock me-2"></i>24/7 Support</li>
-                </ul>
+
+            <!-- Help col -->
+            <div>
+                <h5>Help</h5>
+                <a href="<?php echo SITE_URL; ?>about.php"><i class="fas fa-info-circle me-2" style="width:14px;opacity:.6;"></i>About Us</a>
+                <a href="<?php echo SITE_URL; ?>contact_us.php"><i class="fas fa-envelope me-2" style="width:14px;opacity:.6;"></i>Contact Us</a>
+                <a href="#"><i class="fas fa-shield-alt me-2" style="width:14px;opacity:.6;"></i>Privacy Policy</a>
+                <a href="#"><i class="fas fa-file-contract me-2" style="width:14px;opacity:.6;"></i>Terms of Use</a>
             </div>
         </div>
-        <hr class="my-4" style="border-color: var(--jirani-primary); opacity: 0.15;">
-        <div class="row align-items-center footer-bottom">
-            <div class="col-md-6">
-                <p class="mb-0 text-muted">© <?php echo date('Y'); ?> Jirani. All rights reserved.</p>
+
+        <!-- Trust badges -->
+        <div style="margin-top:40px;padding:20px 0;border-top:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;gap:32px;flex-wrap:wrap;">
+            <div style="display:flex;align-items:center;gap:8px;color:rgba(255,255,255,0.5);font-size:0.82rem;">
+                <i class="fas fa-lock" style="color:#00a651;"></i> Secure M-Pesa Payments
             </div>
-            <div class="col-md-6 text-md-end">
-                <ul class="list-inline mb-0">
-                    <li class="list-inline-item"><a href="<?php echo SITE_URL; ?>privacy.php"
-                            class="text-muted text-decoration-none">Privacy Policy</a></li>
-                    <li class="list-inline-item"><a href="<?php echo SITE_URL; ?>terms.php"
-                            class="text-muted text-decoration-none">Terms of Service</a></li>
-                    <li class="list-inline-item"><a href="<?php echo SITE_URL; ?>cookies.php"
-                            class="text-muted text-decoration-none">Cookie Policy</a></li>
-                </ul>
+            <div style="display:flex;align-items:center;gap:8px;color:rgba(255,255,255,0.5);font-size:0.82rem;">
+                <i class="fas fa-shield-alt" style="color:var(--j-accent);"></i> Escrow Protected
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;color:rgba(255,255,255,0.5);font-size:0.82rem;">
+                <i class="fas fa-map-marker-alt" style="color:#3b82f6;"></i> Location-Aware Delivery
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;color:rgba(255,255,255,0.5);font-size:0.82rem;">
+                <i class="fas fa-leaf" style="color:#22c55e;"></i> 100% Local Vendors
             </div>
         </div>
     </div>
+
+    <div class="j-footer-bottom">
+        <div class="j-container" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+            <span>&copy; <?php echo date('Y'); ?> Jirani. All rights reserved.</span>
+            <span>Made with <i class="fas fa-heart" style="color:#ef4444;"></i> by Muchina in Kenya</span>
+        </div>
+    </div>
 </footer>
-<?php echo ob_get_clean(); ?>
 
-<!-- Additional Footer Scripts -->
-<script>
-    // Newsletter subscription
-    function subscribeNewsletter() {
-        const email = document.getElementById('newsletterEmail').value;
-        if (!email) {
-            showToast('Please enter your email address', 'warning');
-            return;
-        }
+<?php if (isset($additionalJS)): foreach ($additionalJS as $js): ?>
+<script src="<?php echo htmlspecialchars($js); ?>"></script>
+<?php endforeach; endif; ?>
 
-        fetch('api/newsletter/subscribe.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ email: email })
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showToast('Successfully subscribed to newsletter!', 'success');
-                    document.getElementById('newsletterEmail').value = '';
-                } else {
-                    showToast(data.message || 'Failed to subscribe', 'error');
-                }
-            })
-            .catch(error => {
-                showToast('An error occurred', 'error');
-            });
-    }
+<?php if (isset($pageJS)): ?>
+<script><?php echo $pageJS; ?></script>
+<?php endif; ?>
 
-    // Live chat functionality
-    function openLiveChat() {
-        // Implement live chat integration here
-        showToast('Live chat will be available soon!', 'info');
-    }
-
-    // Feedback form
-    function submitFeedback() {
-        const feedback = document.getElementById('feedbackText').value;
-        if (!feedback.trim()) {
-            showToast('Please enter your feedback', 'warning');
-            return;
-        }
-
-        fetch('api/feedback/submit.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ feedback: feedback })
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showToast('Thank you for your feedback!', 'success');
-                    document.getElementById('feedbackText').value = '';
-                } else {
-                    showToast(data.message || 'Failed to submit feedback', 'error');
-                }
-            })
-            .catch(error => {
-                showToast('An error occurred', 'error');
-            });
-    }
-
-    // Cookie consent
-    function acceptCookies() {
-        localStorage.setItem('cookiesAccepted', 'true');
-        document.getElementById('cookieConsent').style.display = 'none';
-    }
-
-    // Show cookie consent if not already accepted
-    document.addEventListener('DOMContentLoaded', function () {
-        if (!localStorage.getItem('cookiesAccepted')) {
-            const cookieConsent = document.createElement('div');
-            cookieConsent.id = 'cookieConsent';
-            cookieConsent.className = 'position-fixed bottom-0 start-0 end-0 bg-dark text-white p-3';
-            cookieConsent.style.zIndex = '1060';
-            cookieConsent.innerHTML = `
-            <div class="container">
-                <div class="row align-items-center">
-                    <div class="col-md-8">
-                        <p class="mb-0">
-                            <i class="fas fa-cookie-bite me-2"></i>
-                            We use cookies to enhance your experience. By continuing to visit this site you agree to our use of cookies.
-                            <a href="cookies.php" class="text-primary">Learn more</a>
-                        </p>
-                    </div>
-                    <div class="col-md-4 text-md-end mt-2 mt-md-0">
-                        <button class="btn btn-primary btn-sm me-2" onclick="acceptCookies()">Accept</button>
-                        <button class="btn btn-outline-light btn-sm" onclick="document.getElementById('cookieConsent').style.display='none'">Decline</button>
-                    </div>
-                </div>
-            </div>
-        `;
-            document.body.appendChild(cookieConsent);
-        }
-    });
-</script>
-
-<!-- Performance monitoring -->
-<script>
-    // Basic performance monitoring
-    window.addEventListener('load', function () {
-        const loadTime = performance.now();
-        if (loadTime > 3000) {
-            console.warn('Page load time is slow:', loadTime + 'ms');
-        }
-    });
-
-    // Error tracking
-    window.addEventListener('error', function (e) {
-        console.error('JavaScript error:', e.error);
-        // You can send this to your error tracking service
-    });
-</script>
+</body>
+</html>

@@ -86,49 +86,40 @@ if (!isset($recentPayouts)) $recentPayouts = [];
 if (!isset($stats['total_payouts'])) $stats['total_payouts'] = 0;
 ?>
 
-<!-- Statistics -->
-<div class="row">
+<div class="row mb-4 g-4">
     <div class="col-lg-3 col-6">
-        <div class="small-box bg-info">
-            <div class="inner">
-                <h3>KSh <?php echo number_format($stats['total_revenue'], 2); ?></h3>
-                <p>Total Revenue</p>
-            </div>
-            <div class="icon">
-                <i class="fas fa-money-bill"></i>
+        <div class="card shadow-sm border-0 h-100" style="border-radius: var(--j-radius-lg); background: linear-gradient(135deg, #10b981, #059669); color: white;">
+            <div class="card-body position-relative overflow-hidden p-4">
+                <h3 class="display-6 font-weight-bold mb-1" style="font-family: var(--j-font-heading);">KSh <?php echo number_format($stats['total_revenue'], 0); ?></h3>
+                <p class="mb-0 font-weight-bold" style="opacity: 0.9; font-size: 1.1rem;">Total Revenue</p>
+                <i class="fas fa-money-bill position-absolute" style="font-size: 4rem; right: -10px; bottom: -10px; opacity: 0.2; transform: rotate(-15deg);"></i>
             </div>
         </div>
     </div>
     <div class="col-lg-3 col-6">
-        <div class="small-box bg-warning">
-            <div class="inner">
-                <h3>KSh <?php echo number_format($stats['pending_escrow'], 2); ?></h3>
-                <p>Pending Escrow</p>
-            </div>
-            <div class="icon">
-                <i class="fas fa-lock"></i>
+        <div class="card shadow-sm border-0 h-100" style="border-radius: var(--j-radius-lg); background: linear-gradient(135deg, #f59e0b, #d97706); color: white;">
+            <div class="card-body position-relative overflow-hidden p-4">
+                <h3 class="display-6 font-weight-bold mb-1" style="font-family: var(--j-font-heading);">KSh <?php echo number_format($stats['pending_escrow'], 0); ?></h3>
+                <p class="mb-0 font-weight-bold" style="opacity: 0.9; font-size: 1.1rem;">Pending Escrow</p>
+                <i class="fas fa-lock position-absolute" style="font-size: 4rem; right: -10px; bottom: -10px; opacity: 0.2; transform: rotate(-15deg);"></i>
             </div>
         </div>
     </div>
     <div class="col-lg-3 col-6">
-        <div class="small-box bg-success">
-            <div class="inner">
-                <h3>KSh <?php echo number_format($stats['available_balance'], 2); ?></h3>
-                <p>Available Balance</p>
-            </div>
-            <div class="icon">
-                <i class="fas fa-wallet"></i>
+        <div class="card shadow-sm border-0 h-100" style="border-radius: var(--j-radius-lg); background: linear-gradient(135deg, #3b82f6, #2563eb); color: white;">
+            <div class="card-body position-relative overflow-hidden p-4">
+                <h3 class="display-6 font-weight-bold mb-1" style="font-family: var(--j-font-heading);">KSh <?php echo number_format($stats['available_balance'], 0); ?></h3>
+                <p class="mb-0 font-weight-bold" style="opacity: 0.9; font-size: 1.1rem;">Available Balance</p>
+                <i class="fas fa-wallet position-absolute" style="font-size: 4rem; right: -10px; bottom: -10px; opacity: 0.2; transform: rotate(-15deg);"></i>
             </div>
         </div>
     </div>
     <div class="col-lg-3 col-6">
-        <div class="small-box bg-primary">
-            <div class="inner">
-                <h3>KSh <?php echo number_format($stats['total_payouts'], 2); ?></h3>
-                <p>Total Payouts</p>
-            </div>
-            <div class="icon">
-                <i class="fas fa-hand-holding-usd"></i>
+        <div class="card shadow-sm border-0 h-100" style="border-radius: var(--j-radius-lg); background: linear-gradient(135deg, var(--j-primary, #6366f1), #4f46e5); color: white;">
+            <div class="card-body position-relative overflow-hidden p-4">
+                <h3 class="display-6 font-weight-bold mb-1" style="font-family: var(--j-font-heading);">KSh <?php echo number_format($stats['total_payouts'], 0); ?></h3>
+                <p class="mb-0 font-weight-bold" style="opacity: 0.9; font-size: 1.1rem;">Total Payouts</p>
+                <i class="fas fa-hand-holding-usd position-absolute" style="font-size: 4rem; right: -10px; bottom: -10px; opacity: 0.2; transform: rotate(-15deg);"></i>
             </div>
         </div>
     </div>
@@ -138,48 +129,57 @@ if (!isset($stats['total_payouts'])) $stats['total_payouts'] = 0;
 <div class="row">
     <!-- Recent Payments -->
     <div class="col-md-8">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Recent Payments</h3>
+        <div class="card shadow-sm border-0" style="border-radius: var(--j-radius-lg);">
+            <div class="card-header bg-white border-0 pt-4 pb-2 px-4">
+                <h3 class="card-title mb-0 h4" style="font-family: var(--j-font-heading); font-weight: 700; color: var(--j-primary);">Recent Payments</h3>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-striped">
-                        <thead>
+                    <table class="table table-hover mb-0 border-0" style="border-bottom-left-radius: var(--j-radius-lg); border-bottom-right-radius: var(--j-radius-lg); overflow: hidden;">
+                        <thead style="background-color: rgba(99, 102, 241, 0.05);">
                             <tr>
-                                <th>Order ID</th>
-                                <th>Customer</th>
-                                <th>Amount</th>
-                                <th>Method</th>
-                                <th>Status</th>
-                                <th>Date</th>
+                                <th class="border-0 px-4 py-3" style="font-weight: 600; color: #4b5563;">Order ID</th>
+                                <th class="border-0 px-4 py-3" style="font-weight: 600; color: #4b5563;">Customer</th>
+                                <th class="border-0 px-4 py-3" style="font-weight: 600; color: #4b5563;">Amount</th>
+                                <th class="border-0 px-4 py-3" style="font-weight: 600; color: #4b5563;">Method</th>
+                                <th class="border-0 px-4 py-3" style="font-weight: 600; color: #4b5563;">Status</th>
+                                <th class="border-0 px-4 py-3" style="font-weight: 600; color: #4b5563;">Date</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($recentPayments as $payment): ?>
+                            <?php if (empty($recentPayments)): ?>
                                 <tr>
-                                    <td>#<?php echo str_pad($payment['order_id'], 8, '0', STR_PAD_LEFT); ?></td>
-                                    <td><?php echo htmlspecialchars($payment['customer_name']); ?></td>
-                                    <td>KSh <?php echo number_format($payment['amount'], 2); ?></td>
-                                    <td><?php echo ucfirst($payment['method']); ?></td>
-                                    <td>
-                                        <span class="badge badge-<?php
-                                        echo match ($payment['status']) {
-                                            'paid' => 'success',
-                                            'pending' => 'warning',
-                                            'failed' => 'danger',
-                                            default => 'secondary'
+                                    <td colspan="6" class="text-center px-4 py-5 text-muted">
+                                        <i class="fas fa-inbox fa-3x mb-3 d-block" style="opacity: 0.3;"></i>
+                                        No recent payments found.
+                                    </td>
+                                </tr>
+                            <?php else: ?>
+                            <?php foreach ($recentPayments as $payment): ?>
+                                <tr style="border-bottom: 1px solid rgba(0,0,0,0.05);">
+                                    <td class="px-4 py-3 align-middle font-weight-bold" style="color: var(--j-primary);">#<?php echo str_pad($payment['order_id'], 8, '0', STR_PAD_LEFT); ?></td>
+                                    <td class="px-4 py-3 align-middle"><?php echo htmlspecialchars($payment['customer_name']); ?></td>
+                                    <td class="px-4 py-3 align-middle font-weight-bold">KSh <?php echo number_format($payment['amount'], 2); ?></td>
+                                    <td class="px-4 py-3 align-middle"><?php echo ucfirst($payment['method']); ?></td>
+                                    <td class="px-4 py-3 align-middle">
+                                        <span class="badge" style="padding: 6px 12px; border-radius: 50px; font-weight: 600; <?php
+                                        echo match (strtolower($payment['status'])) {
+                                            'paid', 'completed' => 'background: rgba(16, 185, 129, 0.15); color: #059669;',
+                                            'pending' => 'background: rgba(245, 158, 11, 0.15); color: #d97706;',
+                                            'failed' => 'background: rgba(239, 68, 68, 0.15); color: #dc2626;',
+                                            default => 'background: #f3f4f6; color: #374151;'
                                         };
                                         ?>">
                                             <?php echo ucfirst($payment['status']); ?>
                                         </span>
                                         <?php if ($payment['is_escrow']): ?>
-                                            <span class="badge badge-info">Escrow</span>
+                                            <span class="badge" style="padding: 6px 12px; border-radius: 50px; font-weight: 600; background: rgba(14, 165, 233, 0.15); color: #0284c7; margin-left: 4px;">Escrow</span>
                                         <?php endif; ?>
                                     </td>
-                                    <td><?php echo date('M d, Y H:i', strtotime($payment['created_at'])); ?></td>
+                                    <td class="px-4 py-3 align-middle text-muted"><?php echo date('M d, Y H:i', strtotime($payment['created_at'])); ?></td>
                                 </tr>
                             <?php endforeach; ?>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
@@ -189,40 +189,45 @@ if (!isset($stats['total_payouts'])) $stats['total_payouts'] = 0;
 
     <!-- Recent Payouts -->
     <div class="col-md-4">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Recent Payouts</h3>
+        <div class="card shadow-sm border-0 h-100" style="border-radius: var(--j-radius-lg);">
+            <div class="card-header bg-white border-0 pt-4 pb-2 px-4">
+                <h3 class="card-title mb-0 h5" style="font-family: var(--j-font-heading); font-weight: 700; color: var(--j-primary);">Recent Payouts</h3>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-striped">
-                        <thead>
+                    <table class="table table-hover mb-0 border-0" style="border-bottom-left-radius: var(--j-radius-lg); border-bottom-right-radius: var(--j-radius-lg); overflow: hidden;">
+                        <thead style="background-color: rgba(99, 102, 241, 0.05);">
                             <tr>
-                                <th>Amount</th>
-                                <th>Status</th>
-                                <th>Date</th>
+                                <th class="border-0 px-4 py-3" style="font-weight: 600; color: #4b5563;">Amount</th>
+                                <th class="border-0 px-4 py-3" style="font-weight: 600; color: #4b5563;">Status</th>
+                                <th class="border-0 px-4 py-3" style="font-weight: 600; color: #4b5563;">Date</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php if (empty($recentPayouts)): ?>
-                                <tr><td colspan="3" class="text-center">No recent payouts found.</td></tr>
+                                <tr>
+                                    <td colspan="3" class="text-center px-4 py-5 text-muted">
+                                        <i class="fas fa-receipt fa-2x mb-3 d-block" style="opacity: 0.3;"></i>
+                                        No recent payouts.
+                                    </td>
+                                </tr>
                             <?php else: ?>
                                 <?php foreach ($recentPayouts as $payout): ?>
-                                    <tr>
-                                        <td>KSh <?php echo number_format($payout['amount'], 2); ?></td>
-                                        <td>
-                                            <span class="badge badge-<?php
-                                            echo match ($payout['status']) {
-                                                'completed' => 'success',
-                                                'pending' => 'warning',
-                                                'failed' => 'danger',
-                                                default => 'secondary'
+                                    <tr style="border-bottom: 1px solid rgba(0,0,0,0.05);">
+                                        <td class="px-4 py-3 align-middle font-weight-bold">KSh <?php echo number_format($payout['amount'], 2); ?></td>
+                                        <td class="px-4 py-3 align-middle">
+                                            <span class="badge" style="padding: 6px 12px; border-radius: 50px; font-weight: 600; <?php
+                                            echo match (strtolower($payout['status'])) {
+                                                'completed' => 'background: rgba(16, 185, 129, 0.15); color: #059669;',
+                                                'pending' => 'background: rgba(245, 158, 11, 0.15); color: #d97706;',
+                                                'failed' => 'background: rgba(239, 68, 68, 0.15); color: #dc2626;',
+                                                default => 'background: #f3f4f6; color: #374151;'
                                             };
                                             ?>">
                                                 <?php echo ucfirst($payout['status']); ?>
                                             </span>
                                         </td>
-                                        <td><?php echo date('M d, Y', strtotime($payout['created_at'])); ?></td>
+                                        <td class="px-4 py-3 align-middle text-muted"><?php echo date('M d, Y', strtotime($payout['created_at'])); ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                             <?php endif; ?>
@@ -231,9 +236,9 @@ if (!isset($stats['total_payouts'])) $stats['total_payouts'] = 0;
                 </div>
             </div>
             <?php if ($stats['available_balance'] > 0): ?>
-                <div class="card-footer">
-                    <button type="button" class="btn btn-primary btn-block" data-toggle="modal"
-                        data-target="#requestPayoutModal">
+                <div class="card-footer bg-white border-0 pb-4 px-4 text-center" style="border-bottom-left-radius: var(--j-radius-lg); border-bottom-right-radius: var(--j-radius-lg);">
+                    <button type="button" class="btn btn-primary btn-block py-2" data-toggle="modal"
+                        data-target="#requestPayoutModal" style="background: var(--j-primary); border-radius: 50px; font-weight: 600; border: none;">
                         Request Payout
                     </button>
                 </div>

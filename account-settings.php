@@ -3,7 +3,7 @@ require_once 'config/config.php';
 
 // Ensure user is logged in
 if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php?redirect=account-settings.php');
+    header('Location: ' . SITE_URL . 'login.php?redirect=account-settings.php');
     exit;
 }
 
@@ -81,14 +81,88 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $pageTitle = "Account Settings";
-include 'includes/header.php';
+$currentPage = 'account-settings';
+$additionalCSS = ['https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css'];
+require_once __DIR__ . '/navbar.php';
 ?>
+
+<style>
+/* Account Settings Premium Styling */
+.account-menu-card {
+    border: none;
+    border-radius: var(--j-radius-lg, 12px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    overflow: hidden;
+}
+.account-menu-card .card-header {
+    background: var(--jirani-white, #fff);
+    border-bottom: 2px solid rgba(42, 92, 61, 0.05);
+    padding: 1.5rem;
+}
+.account-menu-card .card-header h5 {
+    color: var(--jirani-primary, #2A5C3D);
+    font-weight: 700;
+    font-family: 'Outfit', sans-serif;
+}
+.account-menu-card .list-group-item {
+    border: none;
+    padding: 1rem 1.5rem;
+    color: var(--jirani-gray, #333);
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border-left: 4px solid transparent;
+}
+.account-menu-card .list-group-item i {
+    width: 24px;
+    color: var(--jirani-secondary, #FFA726);
+    transition: all 0.3s ease;
+}
+.account-menu-card .list-group-item:hover {
+    background-color: rgba(42, 92, 61, 0.03);
+    color: var(--jirani-primary, #2A5C3D);
+    border-left-color: rgba(42, 92, 61, 0.3);
+}
+.account-menu-card .list-group-item.active {
+    background: linear-gradient(90deg, rgba(42,92,61,0.08) 0%, rgba(42,92,61,0) 100%);
+    color: var(--jirani-primary, #2A5C3D);
+    border-left-color: var(--jirani-primary, #2A5C3D);
+    font-weight: 600;
+}
+.account-menu-card .list-group-item.active i {
+    color: var(--jirani-primary, #2A5C3D);
+}
+
+/* Content Cards */
+.account-content-card {
+    border: none;
+    border-radius: var(--j-radius-lg, 12px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+.account-content-card .card-header {
+    background: var(--jirani-white, #fff);
+    border-bottom: 2px solid rgba(42, 92, 61, 0.05);
+    padding: 1.5rem;
+}
+.account-content-card .card-header h5 {
+    color: var(--jirani-primary, #2A5C3D);
+    font-weight: 700;
+    font-family: 'Outfit', sans-serif;
+}
+.btn-primary {
+    background: var(--jirani-primary, #2A5C3D);
+    border-color: var(--jirani-primary, #2A5C3D);
+}
+.btn-primary:hover {
+    background: #1e422c;
+    border-color: #1e422c;
+}
+</style>
 
 <div class="container py-5">
     <div class="row">
         <div class="col-md-3">
             <!-- Account Navigation -->
-            <div class="card">
+            <div class="card account-menu-card">
                 <div class="card-header">
                     <h5 class="mb-0">Account Menu</h5>
                 </div>
@@ -129,7 +203,7 @@ include 'includes/header.php';
             <div class="tab-content">
                 <!-- Profile Settings Tab -->
                 <div class="tab-pane fade show active" id="profile">
-                    <div class="card">
+                    <div class="card account-content-card">
                         <div class="card-header">
                             <h5 class="mb-0"><i class="fas fa-user"></i> Profile Settings</h5>
                         </div>
@@ -183,7 +257,7 @@ include 'includes/header.php';
 
                 <!-- Security Tab -->
                 <div class="tab-pane fade" id="security">
-                    <div class="card">
+                    <div class="card account-content-card">
                         <div class="card-header">
                             <h5 class="mb-0"><i class="fas fa-lock"></i> Security Settings</h5>
                         </div>
@@ -233,7 +307,7 @@ include 'includes/header.php';
 
                 <!-- Orders Tab -->
                 <div class="tab-pane fade" id="orders">
-                    <div class="card">
+                    <div class="card account-content-card">
                         <div class="card-header">
                             <h5 class="mb-0"><i class="fas fa-shopping-bag"></i> My Orders</h5>
                         </div>
@@ -259,7 +333,7 @@ include 'includes/header.php';
                                     <i class="fas fa-shopping-bag fa-3x text-muted mb-3"></i>
                                     <h5>No Orders Yet</h5>
                                     <p class="text-muted">You haven't placed any orders yet.</p>
-                                    <a href="index.php" class="btn btn-primary">Start Shopping</a>
+                                    <a href="<?php echo SITE_URL; ?>" class="btn btn-primary">Start Shopping</a>
                                 </div>
                             <?php else: ?>
                                 <div class="table-responsive">
@@ -319,7 +393,7 @@ include 'includes/header.php';
                 <div class="tab-pane fade" id="support">
                     <div class="row">
                         <div class="col-md-8">
-                            <div class="card">
+                            <div class="card account-content-card">
                                 <div class="card-header">
                                     <h5 class="mb-0"><i class="fas fa-headset"></i> Contact Support</h5>
                                 </div>
@@ -348,7 +422,7 @@ include 'includes/header.php';
                         </div>
 
                         <div class="col-md-4">
-                            <div class="card">
+                            <div class="card account-content-card">
                                 <div class="card-header">
                                     <h6 class="mb-0">Quick Support</h6>
                                 </div>
@@ -374,7 +448,7 @@ include 'includes/header.php';
                                 </div>
                             </div>
 
-                            <div class="card mt-3">
+                            <div class="card account-content-card mt-3">
                                 <div class="card-header">
                                     <h6 class="mb-0">Contact Information</h6>
                                 </div>
@@ -419,4 +493,8 @@ include 'includes/header.php';
     });
 </script>
 
-<?php include 'includes/footer.php'; ?>
+<!-- jQuery (needed for tabs script) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Bootstrap JS (needed for dropdowns/tabs) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<?php require_once __DIR__ . '/footer.php'; ?>

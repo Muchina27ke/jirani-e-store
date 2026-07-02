@@ -1,500 +1,387 @@
 <?php
 require_once __DIR__ . '/config/config.php';
-$db = getDbConnection();
-require_once __DIR__ . '/includes/Cart.php';
-// Check if user is logged in
+
 if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php?redirect=cart.php');
+    header('Location: ' . SITE_URL . 'Signin/index.php?redirect=cart.php');
     exit;
 }
-$cart = new Cart($db, $_SESSION['user_id']);
-$cartResult = $cart->getCartItems();
-$cartItems = [];
-$total = 0;
-if ($cartResult['success']) {
-    $cartItems = $cartResult['items'];
-    foreach ($cartItems as $item) {
-        $total += $item['price'] * $item['quantity'];
+
+// Get cart items
+$cartObj    = new Cart($conn, $_SESSION['user_id']);
+$cartResult = $cartObj->getCartItems();
+$cartItems  = $cartResult['success'] ? $cartResult['items'] : [];
+$total      = array_sum(array_map(fn($i) => $i['price'] * $i['quantity'], $cartItems));
+
+// Group by vendor
+$vendorGroups = [];
+foreach ($cartItems as $item) {
+    $vid = $item['vendor_id'] ?? 0;
+    if (!isset($vendorGroups[$vid])) {
+        $vendorGroups[$vid] = ['name' => $item['vendor_name'] ?? $item['business_name'] ?? 'Vendor', 'items' => []];
     }
+    $vendorGroups[$vid]['items'][] = $item;
 }
-require_once __DIR__ . '/includes/Auth.php';
-require_once __DIR__ . '/includes/Navigation.php';
-$auth = new Auth($db);
-$currentUser = $auth->isLoggedIn() ? $auth->getUser() : null;
-$navigation = new Navigation($db, $currentUser, 'cart');
+
+$pageTitle   = 'Shopping Cart';
+$currentPage = 'cart';
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shopping Cart - Jirani</title>
-    <link rel="icon" type="image/jpeg" href="title_logo.jpg">
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/About.css">
-    <!-- Footer CSS -->
-    <link rel="stylesheet" href="css/footer.css">
-</head>
-<body>
-<?php echo $navigation->renderCustomerNav(); ?>
-<!-- (rest of original cart HTML and logic follows) -->
+<?php require_once __DIR__ . '/navbar.php'; ?>
+
 <style>
-    /* Only keep cart-specific styles here, remove theme variables */
-    .cart-container {
-        min-height: 100vh;
-        padding-bottom: 120px;
-        /* Prevent footer overlap */
-        box-sizing: border-box;
-        overflow-x: hidden;
-    }
+.cart-layout {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 24px;
+    align-items: start;
+    padding: 40px 0 80px;
+}
 
-    .cart-header {
-        background: linear-gradient(135deg, var(--jirani-primary), #1e4a2f);
-        color: var(--jirani-white);
-        padding: 2rem 0;
-        margin-bottom: 2rem;
-    }
+.cart-items-card {
+    background: white;
+    border-radius: var(--j-radius-lg);
+    border: 1px solid var(--j-border-light);
+    box-shadow: var(--j-shadow-card);
+    overflow: hidden;
+}
 
-    .cart-header h1 {
-        font-weight: 700;
-        margin: 0;
-    }
+.cart-vendor-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 24px;
+    background: var(--j-primary-glass);
+    border-bottom: 1px solid var(--j-border-light);
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--j-primary);
+}
 
-    .cart-item {
-        background: var(--jirani-white);
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        transition: all 0.3s ease;
-        border: 1px solid rgba(42, 92, 61, 0.1);
-    }
+.cart-row {
+    display: grid;
+    grid-template-columns: 88px 1fr auto;
+    gap: 18px;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--j-border-light);
+    transition: var(--j-transition);
+}
 
-    .cart-item:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    }
+.cart-row:last-child { border-bottom: none; }
+.cart-row:hover { background: var(--j-bg); }
 
-    .product-image {
-        border-radius: 8px;
-        object-fit: cover;
-        width: 100%;
-        height: 120px;
-    }
+.cart-row-removing {
+    opacity: 0;
+    transform: translateX(-20px);
+    transition: all 0.35s ease;
+}
 
-    .product-title {
-        color: var(--jirani-primary);
-        font-weight: 600;
-        font-size: 1.1rem;
-        margin-bottom: 0.5rem;
-    }
+.cart-img {
+    width: 88px;
+    height: 80px;
+    border-radius: var(--j-radius);
+    object-fit: cover;
+    background: var(--j-bg);
+    display: block;
+    flex-shrink: 0;
+}
 
-    .vendor-name {
-        color: var(--jirani-gray);
-        font-size: 0.9rem;
-        margin-bottom: 0.5rem;
-    }
+.cart-img-placeholder {
+    width: 88px;
+    height: 80px;
+    border-radius: var(--j-radius);
+    background: linear-gradient(135deg, #e8f0ea, #d4e8d9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--j-primary);
+    font-size: 1.8rem;
+    opacity: 0.5;
+}
 
-    .price-tag {
-        background: linear-gradient(135deg, #28a745, #20c997);
-        color: white;
-        padding: 4px 12px;
-        border-radius: 6px;
-        font-weight: 600;
-        font-size: 1rem;
-    }
+.cart-row-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
+}
 
-    .quantity-controls {
-        border: 2px solid rgba(42, 92, 61, 0.2);
-        border-radius: 8px;
-        overflow: hidden;
-    }
+.cart-row-price {
+    font-family: var(--j-font-heading);
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--j-primary);
+}
 
-    .quantity-btn {
-        background: var(--jirani-primary);
-        border: none;
-        color: white;
-        padding: 8px 12px;
-        transition: all 0.3s ease;
-    }
+.cart-remove-btn {
+    background: none;
+    border: none;
+    color: var(--j-text-light);
+    font-size: 0.85rem;
+    cursor: pointer;
+    padding: 4px;
+    transition: var(--j-transition);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.cart-remove-btn:hover { color: var(--j-danger); }
 
-    .quantity-btn:hover {
-        background: var(--jirani-secondary);
-        color: var(--jirani-gray);
-    }
-
-    .quantity-input {
-        border: none;
-        text-align: center;
-        font-weight: 600;
-        color: var(--jirani-primary);
-    }
-
-    .remove-btn {
-        background: linear-gradient(135deg, #dc3545, #c82333);
-        border: none;
-        color: white;
-        border-radius: 6px;
-        padding: 8px 12px;
-        transition: all 0.3s ease;
-    }
-
-    .remove-btn:hover {
-        background: linear-gradient(135deg, #c82333, #bd2130);
-        transform: scale(1.05);
-    }
-
-    .order-summary-card {
-        background: var(--jirani-white);
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        border: 2px solid rgba(42, 92, 61, 0.1);
-        position: sticky;
-        top: 20px;
-    }
-
-    .summary-title {
-        color: var(--jirani-primary);
-        font-weight: 700;
-        border-bottom: 2px solid rgba(42, 92, 61, 0.1);
-        padding-bottom: 1rem;
-    }
-
-    .summary-item {
-        display: flex;
-        justify-content: space-between;
-        padding: 0.5rem 0;
-        border-bottom: 1px solid rgba(42, 92, 61, 0.05);
-    }
-
-    .summary-total {
-        font-size: 1.2rem;
-        font-weight: 700;
-        color: var(--jirani-primary);
-        border-top: 2px solid rgba(42, 92, 61, 0.1);
-        padding-top: 1rem;
-    }
-
-    .checkout-btn {
-        background: linear-gradient(135deg, var(--jirani-primary), #1e4a2f);
-        border: none;
-        color: white;
-        padding: 1rem 2rem;
-        border-radius: 8px;
-        font-weight: 600;
-        font-size: 1.1rem;
-        transition: all 0.3s ease;
-        width: 100%;
-        margin-top: 1rem;
-    }
-
-    .checkout-btn:hover {
-        background: linear-gradient(135deg, var(--jirani-secondary), #ff9800);
-        color: var(--jirani-gray);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(255, 167, 38, 0.3);
-    }
-
-    .empty-cart {
-        background: var(--jirani-white);
-        border-radius: 12px;
-        padding: 3rem 2rem;
-        text-align: center;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-
-    .empty-cart-icon {
-        font-size: 4rem;
-        color: var(--jirani-secondary);
-        margin-bottom: 1rem;
-    }
-
-    .continue-shopping-btn {
-        background: var(--jirani-primary);
-        border: none;
-        color: white;
-        padding: 0.75rem 1.5rem;
-        border-radius: 6px;
-        font-weight: 600;
-        text-decoration: none;
-        transition: all 0.3s ease;
-        display: inline-block;
-        margin-top: 1rem;
-    }
-
-    .continue-shopping-btn:hover {
-        background: var(--jirani-secondary);
-        color: var(--jirani-gray);
-        text-decoration: none;
-        transform: translateY(-2px);
-    }
-
-    @media (max-width: 768px) {
-        .cart-container {
-            padding: 1rem 0;
-        }
-
-        .cart-header {
-            padding: 1.5rem 0;
-        }
-
-        .cart-header h1 {
-            font-size: 1.8rem;
-        }
-
-        .product-image {
-            height: 100px;
-        }
-
-        .order-summary-card {
-            position: static;
-            margin-top: 2rem;
-        }
-    }
+@media(max-width:768px) {
+    .cart-layout { grid-template-columns: 1fr; }
+    .j-order-summary { position: static; }
+    .cart-row { grid-template-columns: 72px 1fr; grid-template-rows: auto auto; }
+    .cart-row-right { flex-direction: row; align-items: center; justify-content: space-between; }
+}
 </style>
 
-<div class="cart-container">
-    <div class="cart-header">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <h1><i class="fas fa-shopping-cart me-3"></i>Shopping Cart</h1>
-                    <p class="mb-0">Review and manage your items</p>
-                </div>
-                <div class="col-md-4 text-end">
-                    <span class="badge bg-light text-dark fs-6">
-                        <i class="fas fa-box me-2"></i><?php echo count($cartItems); ?> Items
-                    </span>
-                </div>
+<!-- Page header -->
+<div class="j-page-header">
+    <div class="j-container">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+            <a href="<?php echo SITE_URL; ?>index.php" style="color:rgba(255,255,255,0.7);font-size:0.85rem;">
+                <i class="fas fa-arrow-left"></i> Continue Shopping
+            </a>
+        </div>
+        <h1><i class="fas fa-shopping-cart" style="margin-right:12px;opacity:.8;"></i>Shopping Cart
+            <?php if (!empty($cartItems)): ?>
+            <span style="font-size:1rem;font-weight:400;opacity:0.7;margin-left:8px;">(<?php echo count($cartItems); ?> items)</span>
+            <?php endif; ?>
+        </h1>
+    </div>
+</div>
+
+<div class="j-container">
+    <?php if (empty($cartItems)): ?>
+    <!-- Empty cart state -->
+    <div style="padding:80px 0;">
+        <div class="j-empty-state">
+            <div class="j-empty-icon"><i class="fas fa-shopping-cart"></i></div>
+            <h3>Your cart is empty</h3>
+            <p>Looks like you haven't added any products yet.<br>Explore local products from your community!</p>
+            <div style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap;">
+                <a href="<?php echo SITE_URL; ?>index.php" class="j-btn j-btn-primary j-btn-lg">
+                    <i class="fas fa-seedling"></i> Start Shopping
+                </a>
+                <a href="<?php echo SITE_URL; ?>fruits.php" class="j-btn j-btn-ghost j-btn-lg">
+                    <i class="fas fa-apple-alt"></i> Browse Fruits
+                </a>
             </div>
         </div>
     </div>
 
-    <div class="container">
-        <?php if (empty($cartItems)): ?>
-            <div class="empty-cart">
-                <div class="empty-cart-icon">
-                    <i class="fas fa-shopping-basket"></i>
+    <?php else: ?>
+    <div class="cart-layout">
+        <!-- Left: Cart items -->
+        <div>
+            <?php foreach ($vendorGroups as $vid => $vg): ?>
+            <div class="cart-items-card" style="margin-bottom:16px;" id="vendor-group-<?php echo $vid; ?>">
+                <div class="cart-vendor-header">
+                    <i class="fas fa-store"></i>
+                    <?php echo htmlspecialchars($vg['name']); ?>
                 </div>
-                <h3 class="text-muted mb-3">Your cart is empty</h3>
-                <p class="text-muted mb-4">Looks like you haven't added any items to your cart yet.</p>
-                <a href="index.php" class="continue-shopping-btn">
-                    <i class="fas fa-arrow-left me-2"></i>Continue Shopping
+                <?php foreach ($vg['items'] as $item):
+                    $imgSrc = !empty($item['image']) ? SITE_URL . 'uploads/' . htmlspecialchars($item['image']) : '';
+                ?>
+                <div class="cart-row" id="cartItem<?php echo $item['product_id']; ?>">
+                    <!-- Image -->
+                    <?php if ($imgSrc): ?>
+                    <img class="cart-img" src="<?php echo $imgSrc; ?>" alt="<?php echo htmlspecialchars($item['name']); ?>">
+                    <?php else: ?>
+                    <div class="cart-img-placeholder"><i class="fas fa-seedling"></i></div>
+                    <?php endif; ?>
+
+                    <!-- Info -->
+                    <div>
+                        <div style="font-weight:700;font-size:0.95rem;color:var(--j-text);margin-bottom:4px;">
+                            <?php echo htmlspecialchars($item['name']); ?>
+                        </div>
+                        <div style="font-size:0.8rem;color:var(--j-text-muted);margin-bottom:12px;">
+                            KSh <?php echo number_format($item['price'], 2); ?> each
+                        </div>
+                        <!-- Qty control -->
+                        <div class="j-qty-control">
+                            <button class="j-qty-btn" onclick="changeQty(<?php echo $item['product_id']; ?>, -1)" title="Decrease">
+                                <i class="fas fa-minus" style="font-size:0.7rem;"></i>
+                            </button>
+                            <input type="number" class="j-qty-input" id="qty<?php echo $item['product_id']; ?>"
+                                   value="<?php echo $item['quantity']; ?>" min="1"
+                                   onchange="setQty(<?php echo $item['product_id']; ?>, this.value)">
+                            <button class="j-qty-btn" onclick="changeQty(<?php echo $item['product_id']; ?>, 1)" title="Increase">
+                                <i class="fas fa-plus" style="font-size:0.7rem;"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Price + remove -->
+                    <div class="cart-row-right">
+                        <div class="cart-row-price" id="itemTotal<?php echo $item['product_id']; ?>">
+                            KSh <?php echo number_format($item['price'] * $item['quantity'], 2); ?>
+                        </div>
+                        <button class="cart-remove-btn" onclick="removeItem(<?php echo $item['product_id']; ?>)">
+                            <i class="fas fa-trash-alt"></i> Remove
+                        </button>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+            </div>
+            <?php endforeach; ?>
+
+            <!-- Clear cart -->
+            <div style="display:flex;justify-content:flex-end;padding:8px 0;">
+                <button class="cart-remove-btn" onclick="clearCart()" style="font-size:0.85rem;padding:8px 14px;border-radius:8px;border:1px solid var(--j-border);">
+                    <i class="fas fa-trash"></i> Clear Entire Cart
+                </button>
+            </div>
+        </div>
+
+        <!-- Right: Summary -->
+        <div class="j-order-summary">
+            <div class="j-summary-header">Order Summary</div>
+            <div class="j-summary-body" id="summaryBody">
+                <div class="j-summary-row">
+                    <span>Subtotal (<span id="itemCount"><?php echo count($cartItems); ?></span> items)</span>
+                    <span class="amount" id="subtotalDisplay">KSh <?php echo number_format($total, 2); ?></span>
+                </div>
+                <div class="j-summary-row">
+                    <span>Delivery</span>
+                    <span class="amount" style="color:var(--j-success);">Negotiated</span>
+                </div>
+                <div class="j-summary-row total">
+                    <span>Total</span>
+                    <span class="amount" id="totalDisplay">KSh <?php echo number_format($total, 2); ?></span>
+                </div>
+            </div>
+            <div style="padding:0 20px 20px;display:flex;flex-direction:column;gap:10px;">
+                <a href="<?php echo SITE_URL; ?>checkout.php" class="j-btn j-btn-primary j-btn-full j-btn-lg">
+                    <i class="fas fa-lock"></i> Proceed to Checkout
+                </a>
+                <a href="<?php echo SITE_URL; ?>index.php" class="j-btn j-btn-ghost j-btn-full">
+                    <i class="fas fa-arrow-left"></i> Continue Shopping
                 </a>
             </div>
-        <?php else: ?>
-            <div class="row">
-                <div class="col-lg-8">
-                    <div class="cart-items">
-                        <?php foreach ($cartItems as $item): ?>
-                            <div class="cart-item mb-4 p-4" data-cart-item-id="<?php echo $item['product_id']; ?>">
-                                <div class="row align-items-center">
-                                    <div class="col-md-2 col-4">
-                                        <?php 
-                                        $hasImage = !empty($item['image']) && trim($item['image']) !== '';
-                                        if ($hasImage): 
-                                        ?>
-                                            <img src="<?php echo htmlspecialchars($item['image']); ?>"
-                                                alt="<?php echo htmlspecialchars($item['name']); ?>" class="product-image"
-                                                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                            <div class="product-image d-flex align-items-center justify-content-center bg-light text-muted" style="display: none;">
-                                                <div class="text-center">
-                                                    <i class="fas fa-image fa-2x mb-1 opacity-50"></i>
-                                                    <div style="font-size: 0.8rem;">No image available</div>
-                                                </div>
-                                            </div>
-                                        <?php else: ?>
-                                            <div class="product-image d-flex align-items-center justify-content-center bg-light text-muted">
-                                                <div class="text-center">
-                                                    <i class="fas fa-image fa-2x mb-1 opacity-50"></i>
-                                                    <div style="font-size: 0.8rem;">No image available</div>
-                                                </div>
-                                            </div>
-                                        <?php endif; ?>
-                                    </div>
-                                    <div class="col-md-4 col-8">
-                                        <h5 class="product-title"><?php echo htmlspecialchars($item['name']); ?></h5>
-                                        <p class="vendor-name mb-2">
-                                            <i class="fas fa-store me-1"></i>
-                                            <?php echo htmlspecialchars($item['vendor_name']); ?>
-                                        </p>
-                                        <div class="price-tag">
-                                            KSh <?php echo number_format($item['price'], 2); ?> each
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3 col-6 mt-3 mt-md-0">
-                                        <div class="quantity-controls">
-                                            <div class="input-group">
-                                                <button class="btn quantity-btn" data-action="decrease">
-                                                    <i class="fas fa-minus"></i>
-                                                </button>
-                                                <input type="number" class="form-control quantity-input"
-                                                    value="<?php echo $item['quantity']; ?>" min="1"
-                                                    max="<?php echo $item['stock']; ?>">
-                                                <button class="btn quantity-btn" data-action="increase">
-                                                    <i class="fas fa-plus"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-2 col-6 text-end mt-3 mt-md-0">
-                                        <div class="price-tag">
-                                            KSh <?php echo number_format($item['price'] * $item['quantity'], 2); ?>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-1 col-12 text-end mt-3 mt-md-0">
-                                        <button class="btn remove-btn" title="Remove item">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
-                </div>
-
-                <div class="col-lg-4">
-                    <div class="order-summary-card p-4">
-                        <h4 class="summary-title mb-4">
-                            <i class="fas fa-receipt me-2"></i>Order Summary
-                        </h4>
-
-                        <div class="summary-item">
-                            <span>Subtotal</span>
-                            <span>KSh <?php echo number_format($total, 2); ?></span>
-                        </div>
-                        <div class="summary-item">
-                            <span>Delivery Fee</span>
-                            <span class="text-muted">Calculated at checkout</span>
-                        </div>
-
-                        <div class="summary-item summary-total">
-                            <span>Total</span>
-                            <span>KSh <?php echo number_format($total, 2); ?></span>
-                        </div>
-
-                        <a href="checkout.php" class="btn checkout-btn">
-                            <i class="fas fa-credit-card me-2"></i>Proceed to Checkout
-                        </a>
-
-                        <div class="text-center mt-3">
-                            <a href="index.php" class="text-muted text-decoration-none">
-                                <i class="fas fa-arrow-left me-1"></i>Continue Shopping
-                            </a>
-                        </div>
-                    </div>
+            <div style="padding:0 20px 20px;">
+                <div style="font-size:0.78rem;color:var(--j-text-muted);display:flex;align-items:center;gap:6px;">
+                    <i class="fas fa-shield-alt" style="color:var(--j-success);"></i>
+                    Escrow protected checkout
                 </div>
             </div>
-        <?php endif; ?>
+        </div>
     </div>
+    <?php endif; ?>
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // Handle quantity changes
-        document.querySelectorAll('.quantity-btn').forEach(button => {
-            button.addEventListener('click', function () {
-                const input = this.parentElement.querySelector('.quantity-input');
-                const currentValue = parseInt(input.value);
-                const action = this.dataset.action;
-                if (action === 'increase' && currentValue < parseInt(input.max)) {
-                    input.value = currentValue + 1;
-                    updateQuantity(input);
-                } else if (action === 'decrease' && currentValue > 1) {
-                    input.value = currentValue - 1;
-                    updateQuantity(input);
+const SITE_URL = <?php echo json_encode(SITE_URL); ?>;
+
+// Item prices for client-side total recalculation
+const itemPrices = <?php echo json_encode(
+    array_combine(
+        array_column($cartItems, 'product_id'),
+        array_column($cartItems, 'price')
+    )
+); ?>;
+
+let itemQtys = <?php echo json_encode(
+    array_combine(
+        array_column($cartItems, 'product_id'),
+        array_column($cartItems, 'quantity')
+    )
+); ?>;
+
+function changeQty(productId, delta) {
+    const input = document.getElementById('qty' + productId);
+    const newQty = Math.max(1, parseInt(input.value) + delta);
+    input.value = newQty;
+    setQty(productId, newQty);
+}
+
+function setQty(productId, qty) {
+    qty = Math.max(1, parseInt(qty));
+    document.getElementById('qty' + productId).value = qty;
+
+    fetch(SITE_URL + 'api/cart/update-quantity.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ product_id: productId, quantity: qty })
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (d.success) {
+            itemQtys[productId] = qty;
+            // Update item total
+            const price = itemPrices[productId] || 0;
+            const el = document.getElementById('itemTotal' + productId);
+            if (el) el.textContent = 'KSh ' + (price * qty).toLocaleString('en-KE', { minimumFractionDigits: 2 });
+            updateSummary();
+            updateCartCount(d.cart_count);
+        } else {
+            jToast(d.message || 'Could not update quantity', 'error');
+        }
+    })
+    .catch(() => jToast('Network error', 'error'));
+}
+
+function removeItem(productId) {
+    const row = document.getElementById('cartItem' + productId);
+    if (row) row.classList.add('cart-row-removing');
+
+    fetch(SITE_URL + 'api/cart/remove.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ product_id: productId })
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (d.success) {
+            setTimeout(() => {
+                if (row) row.remove();
+                delete itemQtys[productId];
+                delete itemPrices[productId];
+                updateSummary();
+                updateCartCount(d.cart_count);
+                jToast('Item removed from cart', 'success');
+                // If cart is empty, reload to show empty state
+                if (Object.keys(itemQtys).length === 0) {
+                    setTimeout(() => location.reload(), 600);
                 }
-            });
-        });
-
-        // Handle direct quantity input
-        document.querySelectorAll('.quantity-input').forEach(input => {
-            input.addEventListener('change', function () {
-                updateQuantity(this);
-            });
-        });
-
-        // Handle remove item
-        document.querySelectorAll('.remove-btn').forEach(button => {
-            button.addEventListener('click', function () {
-                const cartItem = this.closest('.cart-item');
-                const productId = cartItem.dataset.cartItemId;
-                if (confirm('Are you sure you want to remove this item?')) {
-                    removeItem(productId, cartItem);
-                }
-            });
-        });
-
-        function updateQuantity(input) {
-            const cartItem = input.closest('.cart-item');
-            const productId = cartItem.dataset.cartItemId;
-            const quantity = parseInt(input.value);
-
-            fetch('api/cart/update-quantity.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    product_id: productId,
-                    quantity: quantity
-                })
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        updateCartCount(data.cart_count);
-                        location.reload(); // Refresh to update prices
-                    } else {
-                        alert(data.message);
-                        location.reload(); // Refresh to reset quantity
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred while updating quantity');
-                    location.reload();
-                });
+            }, 350);
+        } else {
+            if (row) row.classList.remove('cart-row-removing');
+            jToast(d.message || 'Could not remove item', 'error');
         }
-
-        function removeItem(productId, cartItemElement) {
-            fetch('api/cart/remove.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    product_id: productId
-                })
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        updateCartCount(data.cart_count);
-                        cartItemElement.remove();
-                        // If no items left, show empty cart message
-                        if (document.querySelectorAll('.cart-item').length === 0) {
-                            location.reload();
-                        }
-                    } else {
-                        alert(data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred while removing item');
-                });
-        }
-
-        function updateCartCount(count) {
-            const cartCountElement = document.querySelector('.cart-count');
-            if (cartCountElement) {
-                cartCountElement.textContent = count;
-            }
-        }
+    })
+    .catch(() => {
+        if (row) row.classList.remove('cart-row-removing');
+        jToast('Network error', 'error');
     });
+}
+
+function clearCart() {
+    if (!confirm('Clear your entire cart? This cannot be undone.')) return;
+    fetch(SITE_URL + 'api/cart/clear.php', { method: 'POST' })
+    .then(r => r.json())
+    .then(d => {
+        if (d.success) { location.reload(); }
+        else jToast(d.message || 'Could not clear cart', 'error');
+    })
+    .catch(() => jToast('Network error', 'error'));
+}
+
+function updateSummary() {
+    let total = 0;
+    let count = 0;
+    for (const [pid, qty] of Object.entries(itemQtys)) {
+        total += (itemPrices[pid] || 0) * qty;
+        count++;
+    }
+    const fmt = n => 'KSh ' + n.toLocaleString('en-KE', { minimumFractionDigits: 2 });
+    const subtotal = document.getElementById('subtotalDisplay');
+    const totalEl  = document.getElementById('totalDisplay');
+    const countEl  = document.getElementById('itemCount');
+    if (subtotal) subtotal.textContent = fmt(total);
+    if (totalEl)  totalEl.textContent  = fmt(total);
+    if (countEl)  countEl.textContent  = count;
+}
 </script>
 
-<?php include 'footer.php'; ?>
+<?php require_once __DIR__ . '/footer.php'; ?>

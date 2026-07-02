@@ -354,10 +354,10 @@ class Footer
                             </li>
                             <li class="mb-2"><a href="<?php echo SITE_URL; ?>about.php"
                                     class="text-muted text-decoration-none">About Us</a></li>
-                            <li class="mb-2"><a href="<?php echo SITE_URL; ?>categories.php"
-                                    class="text-muted text-decoration-none">Categories</a></li>
-                            <li class="mb-2"><a href="<?php echo SITE_URL; ?>../../../Register/index.php"
-                                    class="text-muted text-decoration-none">Vendors</a></li>
+                            <li class="mb-2"><a href="<?php echo SITE_URL; ?>search.php"
+                                    class="text-muted text-decoration-none">Browse Products</a></li>
+                            <li class="mb-2"><a href="<?php echo SITE_URL; ?>Register/"
+                                    class="text-muted text-decoration-none">Become a Vendor</a></li>
                             <li class="mb-2"><a href="<?php echo SITE_URL; ?>contact_us.php"
                                     class="text-muted text-decoration-none">Contact</a></li>
                         </ul>
@@ -373,10 +373,6 @@ class Footer
                                     class="text-muted text-decoration-none">Vegetables</a></li>
                             <li class="mb-2"><a href="<?php echo SITE_URL; ?>handcrafts.php"
                                     class="text-muted text-decoration-none">Handcrafts</a></li>
-                            <li class="mb-2"><a href="<?php echo SITE_URL; ?>electronics.php"
-                                    class="text-muted text-decoration-none">Electronics</a></li>
-                            <li class="mb-2"><a href="<?php echo SITE_URL; ?>fashion.php"
-                                    class="text-muted text-decoration-none">Fashion</a></li>
                         </ul>
                     </div>
 
@@ -384,15 +380,15 @@ class Footer
                     <div class="col-lg-2 col-md-6 mb-4">
                         <h6 class="text-primary mb-3">Support</h6>
                         <ul class="list-unstyled">
-                            <li class="mb-2"><a href="<?php echo SITE_URL; ?>help.php"
+                            <li class="mb-2"><a href="<?php echo SITE_URL; ?>contact_us.php"
                                     class="text-muted text-decoration-none">Help Center</a></li>
-                            <li class="mb-2"><a href="<?php echo SITE_URL; ?>faq.php"
+                            <li class="mb-2"><a href="<?php echo SITE_URL; ?>contact_us.php"
                                     class="text-muted text-decoration-none">FAQ</a></li>
-                            <li class="mb-2"><a href="<?php echo SITE_URL; ?>shipping.php"
+                            <li class="mb-2"><a href="<?php echo SITE_URL; ?>about.php"
                                     class="text-muted text-decoration-none">Shipping Info</a></li>
-                            <li class="mb-2"><a href="<?php echo SITE_URL; ?>returns.php"
+                            <li class="mb-2"><a href="<?php echo SITE_URL; ?>contact_us.php"
                                     class="text-muted text-decoration-none">Returns</a></li>
-                            <li class="mb-2"><a href="<?php echo SITE_URL; ?>track-order.php"
+                            <li class="mb-2"><a href="<?php echo SITE_URL; ?>orders.php"
                                     class="text-muted text-decoration-none">Track Order</a></li>
                         </ul>
                     </div>
@@ -433,15 +429,15 @@ class Footer
                     <div class="col-md-6 text-md-end">
                         <ul class="list-inline mb-0">
                             <li class="list-inline-item">
-                                <a href="<?php echo SITE_URL; ?>privacy.php" class="text-muted text-decoration-none">Privacy
+                                <a href="<?php echo SITE_URL; ?>about.php" class="text-muted text-decoration-none">Privacy
                                     Policy</a>
                             </li>
                             <li class="list-inline-item">
-                                <a href="<?php echo SITE_URL; ?>terms.php" class="text-muted text-decoration-none">Terms of
+                                <a href="<?php echo SITE_URL; ?>about.php" class="text-muted text-decoration-none">Terms of
                                     Service</a>
                             </li>
                             <li class="list-inline-item">
-                                <a href="<?php echo SITE_URL; ?>cookies.php" class="text-muted text-decoration-none">Cookie
+                                <a href="<?php echo SITE_URL; ?>about.php" class="text-muted text-decoration-none">Cookie
                                     Policy</a>
                             </li>
                         </ul>

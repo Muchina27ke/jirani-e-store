@@ -2,14 +2,14 @@
 require_once __DIR__ . '/config/config.php';
 
 if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php');
+    header('Location: ' . SITE_URL . 'login.php');
     exit();
 }
 
 $orderId = isset($_GET['order_id']) ? (int) $_GET['order_id'] : 0;
 
 if (!$orderId) {
-    header('Location: orders.php');
+    header('Location: ' . SITE_URL . 'orders.php');
     exit();
 }
 
@@ -29,13 +29,13 @@ $stmt->execute();
 $order = $stmt->get_result()->fetch_assoc();
 
 if (!$order) {
-    header('Location: orders.php');
+    header('Location: ' . SITE_URL . 'orders.php');
     exit();
 }
 
 // Fetch order items
 $stmt = $conn->prepare('
-    SELECT oi.*, p.name as product_name, p.image as product_image
+    SELECT oi.*, p.name as product_name, p.image_url as product_image
     FROM order_items oi
     JOIN products p ON oi.product_id = p.id
     WHERE oi.order_id = ?
@@ -58,598 +58,240 @@ foreach ($orderItems as $item) {
 
 $pageTitle = "Order Details #" . str_pad($orderId, 6, '0', STR_PAD_LEFT) . " - Jirani";
 $currentPage = 'orders';
-require_once __DIR__ . '/includes/Auth.php';
-require_once __DIR__ . '/includes/Navigation.php';
-$auth = new Auth($conn);
-$currentUser = null;
-if ($auth->isLoggedIn()) {
-    $currentUser = $auth->getUser();
-}
-$navigation = new Navigation($conn, $currentUser, 'orders');
-echo $navigation->renderCustomerNav();
+$additionalCSS = [
+    'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css',
+    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css'
+];
+require_once __DIR__ . '/navbar.php';
 ?>
-
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-<link rel="stylesheet" href="css/About.css">
-<link rel="stylesheet" href="css/footer.css">
 <style>
-    :root {
-        --jirani-primary: #2A5C3D;
-        --jirani-secondary: #FFA726;
-        --jirani-white: #FFFFFF;
-        --jirani-gray: #333333;
-    }
+.order-details-page { padding: 40px 0 80px; }
+.order-timeline-wrap { position: relative; padding-left: 20px; }
+.order-timeline-wrap::before {
+    content: '';
+    position: absolute;
+    left: 7px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--j-border-light);
+}
+.timeline-item { position: relative; margin-bottom: 24px; }
+.timeline-item:last-child { margin-bottom: 0; }
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -20px;
+    top: 5px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--j-bg);
+    border: 2px solid var(--j-border-light);
+    z-index: 1;
+}
+.timeline-item.completed::before {
+    background: var(--j-primary);
+    border-color: var(--j-primary);
+}
+.timeline-item.current::before {
+    background: var(--j-accent);
+    border-color: var(--j-accent);
+    box-shadow: 0 0 0 4px rgba(255, 167, 38, 0.2);
+}
+.timeline-content h6 { margin: 0 0 4px; font-weight: 700; color: var(--j-text); }
+.timeline-content p { margin: 0 0 4px; font-size: 0.9rem; color: var(--j-text-muted); }
+.timeline-content small { font-size: 0.8rem; color: var(--j-text-muted); opacity: 0.8; }
 
-    html,
-    body {
-        height: 100%;
-        min-height: 100%;
-        width: 100%;
-        overflow-x: hidden;
-    }
+.status-badge-custom {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 14px; border-radius: 99px;
+    font-size: 0.8rem; font-weight: 700;
+    text-transform: capitalize;
+}
+.badge-pending { background: rgba(245,158,11,0.1); color: #d97706; }
+.badge-accepted { background: rgba(59,130,246,0.1); color: #2563eb; }
+.badge-shipped { background: rgba(139,92,246,0.1); color: #7c3aed; }
+.badge-delivered { background: rgba(22,163,74,0.1); color: #16a34a; }
+.badge-cancelled { background: rgba(239,68,68,0.1); color: #dc2626; }
 
-    .order-details-container {
-        min-height: 100vh;
-        padding-bottom: 120px;
-        /* Prevent footer overlap */
-        box-sizing: border-box;
-        overflow-x: hidden;
-    }
-
-    .order-header {
-        background: linear-gradient(135deg, var(--jirani-primary), #1e4a2f);
-        color: var(--jirani-white);
-        padding: 2rem 0;
-        margin-bottom: 2rem;
-    }
-
-    .order-header h1 {
-        font-weight: 700;
-        margin: 0;
-    }
-
-    .order-card {
-        background: var(--jirani-white);
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        border: 1px solid rgba(42, 92, 61, 0.1);
-        margin-bottom: 2rem;
-        overflow: hidden;
-    }
-
-    .order-card-header {
-        background: linear-gradient(135deg, rgba(42, 92, 61, 0.1), rgba(42, 92, 61, 0.05));
-        padding: 1.5rem;
-        border-bottom: 1px solid rgba(42, 92, 61, 0.1);
-    }
-
-    .order-card-body {
-        padding: 1.5rem;
-    }
-
-    .order-number {
-        color: var(--jirani-primary);
-        font-weight: 700;
-        font-size: 1.3rem;
-    }
-
-    .status-badge {
-        padding: 0.5rem 1rem;
-        border-radius: 6px;
-        font-weight: 600;
-        font-size: 0.9rem;
-    }
-
-    .status-pending {
-        background: linear-gradient(135deg, #ffc107, #ffb74d);
-        color: #000;
-    }
-
-    .status-accepted {
-        background: linear-gradient(135deg, #007bff, #2196f3);
-        color: white;
-    }
-
-    .status-shipped {
-        background: linear-gradient(135deg, #17a2b8, #00bcd4);
-        color: white;
-    }
-
-    .status-delivered {
-        background: linear-gradient(135deg, #28a745, #4caf50);
-        color: white;
-    }
-
-    .status-cancelled {
-        background: linear-gradient(135deg, #dc3545, #f44336);
-        color: white;
-    }
-
-    .status-disputed {
-        background: linear-gradient(135deg, #fd7e14, #ff9800);
-        color: white;
-    }
-
-    .order-item {
-        background: rgba(42, 92, 61, 0.05);
-        border-radius: 8px;
-        padding: 1rem;
-        margin-bottom: 1rem;
-        border: 1px solid rgba(42, 92, 61, 0.1);
-        transition: all 0.3s ease;
-    }
-
-    .order-item:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .product-image {
-        border-radius: 8px;
-        object-fit: cover;
-        width: 100%;
-        height: 80px;
-    }
-
-    .product-title {
-        color: var(--jirani-primary);
-        font-weight: 600;
-        margin-bottom: 0.5rem;
-    }
-
-    .price-highlight {
-        background: linear-gradient(135deg, #28a745, #20c997);
-        color: white;
-        padding: 0.5rem 1rem;
-        border-radius: 6px;
-        font-weight: 600;
-    }
-
-    .timeline {
-        position: relative;
-        padding-left: 30px;
-    }
-
-    .timeline::before {
-        content: '';
-        position: absolute;
-        left: 15px;
-        top: 0;
-        bottom: 0;
-        width: 3px;
-        background: linear-gradient(135deg, var(--jirani-primary), var(--jirani-secondary));
-        border-radius: 2px;
-    }
-
-    .timeline-item {
-        position: relative;
-        margin-bottom: 20px;
-    }
-
-    .timeline-item::before {
-        content: '';
-        position: absolute;
-        left: -22px;
-        top: 5px;
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        background: var(--jirani-primary);
-        border: 3px solid white;
-        box-shadow: 0 0 0 2px var(--jirani-primary);
-    }
-
-    .timeline-item.completed::before {
-        background: var(--jirani-secondary);
-        box-shadow: 0 0 0 2px var(--jirani-secondary);
-    }
-
-    .timeline-item.current::before {
-        background: var(--jirani-secondary);
-        box-shadow: 0 0 0 2px var(--jirani-secondary);
-        animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-        0% {
-            box-shadow: 0 0 0 0 rgba(255, 167, 38, 0.7);
-        }
-
-        70% {
-            box-shadow: 0 0 0 10px rgba(255, 167, 38, 0);
-        }
-
-        100% {
-            box-shadow: 0 0 0 0 rgba(255, 167, 38, 0);
-        }
-    }
-
-    .timeline-content h6 {
-        margin: 0 0 5px 0;
-        color: var(--jirani-primary);
-        font-weight: 600;
-    }
-
-    .timeline-content p {
-        margin: 0;
-        color: var(--jirani-gray);
-        font-size: 0.9rem;
-    }
-
-    .info-card {
-        background: var(--jirani-white);
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        border: 1px solid rgba(42, 92, 61, 0.1);
-        margin-bottom: 1.5rem;
-        overflow: hidden;
-    }
-
-    .info-card-header {
-        background: linear-gradient(135deg, rgba(42, 92, 61, 0.1), rgba(42, 92, 61, 0.05));
-        padding: 1rem 1.5rem;
-        border-bottom: 1px solid rgba(42, 92, 61, 0.1);
-    }
-
-    .info-card-title {
-        color: var(--jirani-primary);
-        font-weight: 700;
-        margin: 0;
-        display: flex;
-        align-items: center;
-    }
-
-    .info-card-body {
-        padding: 1.5rem;
-    }
-
-    .contact-info {
-        background: rgba(42, 92, 61, 0.05);
-        border-radius: 8px;
-        padding: 1rem;
-        margin-bottom: 1rem;
-        border: 1px solid rgba(42, 92, 61, 0.1);
-    }
-
-    .contact-name {
-        color: var(--jirani-primary);
-        font-weight: 600;
-        margin-bottom: 0.5rem;
-    }
-
-    .contact-detail {
-        color: var(--jirani-gray);
-        font-size: 0.9rem;
-        margin-bottom: 0.25rem;
-    }
-
-    .btn-jirani {
-        background: linear-gradient(135deg, var(--jirani-primary), #1e4a2f);
-        border: none;
-        color: white;
-        padding: 0.75rem 1.5rem;
-        border-radius: 8px;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        text-decoration: none;
-        display: inline-block;
-    }
-
-    .btn-jirani:hover {
-        background: linear-gradient(135deg, var(--jirani-secondary), #ff9800);
-        color: var(--jirani-gray);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(255, 167, 38, 0.3);
-        text-decoration: none;
-    }
-
-    .btn-danger-jirani {
-        background: linear-gradient(135deg, #dc3545, #c82333);
-        border: none;
-        color: white;
-        padding: 0.75rem 1.5rem;
-        border-radius: 8px;
-        font-weight: 600;
-        transition: all 0.3s ease;
-    }
-
-    .btn-danger-jirani:hover {
-        background: linear-gradient(135deg, #c82333, #bd2130);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
-    }
-
-    .btn-secondary-jirani {
-        background: rgba(42, 92, 61, 0.1);
-        border: 2px solid rgba(42, 92, 61, 0.3);
-        color: var(--jirani-primary);
-        padding: 0.75rem 1.5rem;
-        border-radius: 8px;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        text-decoration: none;
-        display: inline-block;
-    }
-
-    .btn-secondary-jirani:hover {
-        background: rgba(42, 92, 61, 0.2);
-        border-color: var(--jirani-primary);
-        color: var(--jirani-primary);
-        text-decoration: none;
-    }
-
-    @media (max-width: 768px) {
-        .order-details-container {
-            padding: 1rem 0;
-        }
-
-        .order-header {
-            padding: 1.5rem 0;
-        }
-
-        .order-header h1 {
-            font-size: 1.8rem;
-        }
-
-        .timeline {
-            padding-left: 20px;
-        }
-
-        .timeline-item::before {
-            left: -17px;
-            width: 10px;
-            height: 10px;
-        }
-    }
+.product-thumb { width: 60px; height: 60px; object-fit: cover; border-radius: var(--j-radius-md); }
 </style>
 
-<div class="order-details-container">
-    <div class="order-header">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <h1>
-                        <i class="fas fa-shopping-bag me-3"></i>
-                        Order #<?php echo str_pad($orderId, 6, '0', STR_PAD_LEFT); ?>
-                    </h1>
-                    <p class="mb-0">Track your order status and details</p>
-                </div>
-                <div class="col-md-4 text-end">
-                    <span class="status-badge status-<?php echo $order['status']; ?>">
-                        <?php echo ucfirst($order['status']); ?>
-                    </span>
-                </div>
+<div class="j-page-header">
+    <div class="j-container">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+            <div>
+                <h1><i class="fas fa-shopping-bag" style="margin-right:12px;opacity:.8;"></i>Order #<?php echo str_pad($orderId, 6, '0', STR_PAD_LEFT); ?></h1>
+                <p style="opacity:.7;margin:8px 0 0;font-size:0.95rem;">Track your order status and details</p>
+            </div>
+            <div>
+                <span class="status-badge-custom badge-<?php echo strtolower($order['status']); ?>">
+                    <?php echo ucfirst($order['status']); ?>
+                </span>
             </div>
         </div>
     </div>
+</div>
 
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-8">
-                <!-- Order Header -->
-                <div class="order-card">
-                    <div class="order-card-header">
-                        <div class="row align-items-center">
-                            <div class="col-md-6">
-                                <h4 class="order-number mb-2">
-                                    <i class="fas fa-receipt me-2"></i>
-                                    Order #<?php echo str_pad($orderId, 6, '0', STR_PAD_LEFT); ?>
-                                </h4>
-                                <p class="mb-0 text-muted">
-                                    <i class="fas fa-calendar me-1"></i>
-                                    Placed on <?php echo date('M d, Y H:i', strtotime($order['created_at'])); ?>
-                                </p>
-                            </div>
-                            <div class="col-md-6 text-end">
-                                <p class="mb-1">
-                                    <strong>Vendor:</strong> <?php echo htmlspecialchars($order['vendor_name']); ?>
-                                </p>
-                                <p class="mb-0">
-                                    <strong>Total:</strong>
-                                    <span class="price-highlight">KSh <?php echo number_format($total, 2); ?></span>
-                                </p>
-                            </div>
-                        </div>
+<div class="j-container order-details-page">
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Order Info -->
+            <div class="j-card" style="margin-bottom: 24px;">
+                <div class="j-card-header" style="padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--j-border-light);">
+                    <div>
+                        <h4 style="margin: 0; font-weight: 700; color: var(--j-text); font-size: 1.1rem;">
+                            <i class="fas fa-receipt me-2" style="color:var(--j-primary)"></i> Order Details
+                        </h4>
+                        <p style="margin: 4px 0 0; font-size: 0.85rem; color: var(--j-text-muted);">
+                            Placed on <?php echo date('M d, Y H:i', strtotime($order['created_at'])); ?>
+                        </p>
                     </div>
                 </div>
-
-                <!-- Order Items -->
-                <div class="order-card">
-                    <div class="order-card-header">
-                        <h5 class="info-card-title">
-                            <i class="fas fa-list me-2"></i>Order Items
-                        </h5>
-                    </div>
-                    <div class="order-card-body">
-                        <?php foreach ($orderItems as $item): ?>
-                            <div class="order-item">
-                                <div class="row align-items-center">
-                                    <div class="col-md-2 col-4">
-                                        <img src="<?php echo htmlspecialchars($item['product_image']); ?>"
-                                            alt="<?php echo htmlspecialchars($item['product_name']); ?>"
-                                            class="product-image">
-                                    </div>
-                                    <div class="col-md-6 col-8">
-                                        <h6 class="product-title"><?php echo htmlspecialchars($item['product_name']); ?>
-                                        </h6>
-                                        <p class="text-muted mb-0">
-                                            <i class="fas fa-hashtag me-1"></i>
-                                            Quantity: <?php echo $item['quantity']; ?>
-                                        </p>
-                                    </div>
-                                    <div class="col-md-4 text-end">
-                                        <div class="price-highlight">
-                                            KSh <?php echo number_format($item['price'] * $item['quantity'], 2); ?>
-                                        </div>
-                                        <small class="text-muted">
-                                            KSh <?php echo number_format($item['price'], 2); ?> each
-                                        </small>
-                                    </div>
-                                </div>
-                            </div>
-                        <?php endforeach; ?>
-
-                        <div class="text-end mt-3">
-                            <h5 class="price-highlight">
-                                Total: KSh <?php echo number_format($total, 2); ?>
-                            </h5>
+                <div class="j-card-body" style="padding: 24px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0;">
+                        <div>
+                            <span style="font-size: 0.8rem; color: var(--j-text-muted); text-transform: uppercase; font-weight: 600;">Vendor</span>
+                            <div style="font-weight: 600; color: var(--j-text);"><?php echo htmlspecialchars($order['vendor_name']); ?></div>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Order Timeline -->
-                <div class="order-card">
-                    <div class="order-card-header">
-                        <h5 class="info-card-title">
-                            <i class="fas fa-clock me-2"></i>Order Timeline
-                        </h5>
-                    </div>
-                    <div class="order-card-body">
-                        <div class="timeline">
-                            <?php echo generateOrderTimeline($order); ?>
+                        <div style="text-align: right;">
+                            <span style="font-size: 0.8rem; color: var(--j-text-muted); text-transform: uppercase; font-weight: 600;">Total Amount</span>
+                            <div style="font-weight: 800; color: var(--j-primary); font-size: 1.2rem;">KSh <?php echo number_format($total, 2); ?></div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-lg-4">
-                <!-- Delivery Information -->
-                <div class="info-card">
-                    <div class="info-card-header">
-                        <h5 class="info-card-title">
-                            <i class="fas fa-truck me-2"></i>Delivery Information
-                        </h5>
-                    </div>
-                    <div class="info-card-body">
-                        <div class="contact-info">
-                            <h6 class="contact-name">
-                                <i class="fas fa-map-marker-alt me-2"></i>Delivery Address
-                            </h6>
-                            <p class="contact-detail">
-                                <?php echo nl2br(htmlspecialchars($order['delivery_address'])); ?>
-                            </p>
-                        </div>
-
-                        <?php if (!empty($order['delivery_instructions'])): ?>
-                            <div class="contact-info">
-                                <h6 class="contact-name">
-                                    <i class="fas fa-info-circle me-2"></i>Delivery Instructions
-                                </h6>
-                                <p class="contact-detail">
-                                    <?php echo nl2br(htmlspecialchars($order['delivery_instructions'])); ?>
-                                </p>
+            <!-- Order Items -->
+            <div class="j-card" style="margin-bottom: 24px;">
+                <div class="j-card-header" style="padding: 20px 24px; border-bottom: 1px solid var(--j-border-light);">
+                    <h5 style="margin: 0; font-weight: 700; font-size: 1.05rem;">
+                        <i class="fas fa-list me-2" style="color:var(--j-primary)"></i> Order Items
+                    </h5>
+                </div>
+                <div class="j-card-body" style="padding: 0;">
+                    <?php foreach ($orderItems as $item): ?>
+                        <div style="padding: 20px 24px; border-bottom: 1px solid var(--j-border-light); display: flex; align-items: center; gap: 16px;">
+                            <img src="<?php echo htmlspecialchars(strpos($item['product_image'], 'http') === 0 ? $item['product_image'] : (strpos($item['product_image'], 'uploads/') !== false ? SITE_URL . $item['product_image'] : SITE_URL . 'uploads/' . $item['product_image'])); ?>" alt="Product" class="product-thumb">
+                            <div style="flex: 1;">
+                                <h6 style="margin: 0 0 4px; font-weight: 600; color: var(--j-text);"><?php echo htmlspecialchars($item['product_name']); ?></h6>
+                                <p style="margin: 0; font-size: 0.85rem; color: var(--j-text-muted);">Qty: <?php echo $item['quantity']; ?> × KSh <?php echo number_format($item['price'], 2); ?></p>
                             </div>
-                        <?php endif; ?>
-
-                        <div class="contact-info">
-                            <h6 class="contact-name">
-                                <i class="fas fa-calendar-alt me-2"></i>Estimated Delivery
-                            </h6>
-                            <p class="contact-detail">
-                                <?php echo date('M d, Y', strtotime($order['created_at'] . ' +2 days')); ?>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Contact Information -->
-                <div class="info-card">
-                    <div class="info-card-header">
-                        <h5 class="info-card-title">
-                            <i class="fas fa-phone me-2"></i>Contact Information
-                        </h5>
-                    </div>
-                    <div class="info-card-body">
-                        <div class="contact-info">
-                            <h6 class="contact-name">
-                                <i class="fas fa-store me-2"></i>Vendor Contact
-                            </h6>
-                            <p class="contact-detail">
-                                <strong><?php echo htmlspecialchars($order['vendor_name']); ?></strong>
-                            </p>
-                            <p class="contact-detail">
-                                <i class="fas fa-phone me-1"></i>
-                                <?php echo htmlspecialchars($order['vendor_phone']); ?>
-                            </p>
-                            <p class="contact-detail">
-                                <i class="fas fa-envelope me-1"></i>
-                                <?php echo htmlspecialchars($order['vendor_email']); ?>
-                            </p>
-                        </div>
-
-                        <hr>
-
-                        <div class="contact-info">
-                            <h6 class="contact-name">
-                                <i class="fas fa-user me-2"></i>Your Contact
-                            </h6>
-                            <p class="contact-detail">
-                                <strong><?php echo htmlspecialchars($order['customer_name']); ?></strong>
-                            </p>
-                            <p class="contact-detail">
-                                <i class="fas fa-phone me-1"></i>
-                                <?php echo htmlspecialchars($order['customer_phone']); ?>
-                            </p>
-                            <p class="contact-detail">
-                                <i class="fas fa-envelope me-1"></i>
-                                <?php echo htmlspecialchars($order['customer_email']); ?>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Payment Information -->
-                <?php if ($payment): ?>
-                    <div class="info-card">
-                        <div class="info-card-header">
-                            <h5 class="info-card-title">
-                                <i class="fas fa-credit-card me-2"></i>Payment Information
-                            </h5>
-                        </div>
-                        <div class="info-card-body">
-                            <div class="contact-info">
-                                <p class="contact-detail">
-                                    <strong>Method:</strong> <?php echo ucfirst($payment['method']); ?>
-                                </p>
-                                <p class="contact-detail">
-                                    <strong>Status:</strong>
-                                    <span class="status-badge status-<?php echo $payment['status']; ?>">
-                                        <?php echo ucfirst($payment['status']); ?>
-                                    </span>
-                                </p>
-                                <p class="contact-detail">
-                                    <strong>Amount:</strong>
-                                    <span class="price-highlight">KSh
-                                        <?php echo number_format($payment['amount'], 2); ?></span>
-                                </p>
-                                <?php if ($payment['mpesa_transaction_id']): ?>
-                                    <p class="contact-detail">
-                                        <strong>Transaction ID:</strong>
-                                        <?php echo htmlspecialchars($payment['mpesa_transaction_id']); ?>
-                                    </p>
-                                <?php endif; ?>
+                            <div style="font-weight: 700; color: var(--j-text);">
+                                KSh <?php echo number_format($item['price'] * $item['quantity'], 2); ?>
                             </div>
                         </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+
+            <!-- Timeline -->
+            <div class="j-card" style="margin-bottom: 24px;">
+                <div class="j-card-header" style="padding: 20px 24px; border-bottom: 1px solid var(--j-border-light);">
+                    <h5 style="margin: 0; font-weight: 700; font-size: 1.05rem;">
+                        <i class="fas fa-clock me-2" style="color:var(--j-primary)"></i> Order Status
+                    </h5>
+                </div>
+                <div class="j-card-body" style="padding: 24px;">
+                    <div class="order-timeline-wrap">
+                        <?php echo generateOrderTimeline($order); ?>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Delivery Info -->
+            <div class="j-card" style="margin-bottom: 24px;">
+                <div class="j-card-header" style="padding: 20px 24px; border-bottom: 1px solid var(--j-border-light);">
+                    <h5 style="margin: 0; font-weight: 700; font-size: 1.05rem;">
+                        <i class="fas fa-truck me-2" style="color:var(--j-primary)"></i> Delivery Info
+                    </h5>
+                </div>
+                <div class="j-card-body" style="padding: 24px;">
+                    <div style="margin-bottom: 16px;">
+                        <div style="font-size: 0.8rem; color: var(--j-text-muted); text-transform: uppercase; font-weight: 600; margin-bottom: 4px;">Delivery Address</div>
+                        <div style="font-size: 0.95rem; line-height: 1.5; color: var(--j-text);"><?php echo nl2br(htmlspecialchars($order['delivery_address'])); ?></div>
+                    </div>
+                    <?php if (!empty($order['delivery_instructions'])): ?>
+                    <div style="margin-bottom: 16px;">
+                        <div style="font-size: 0.8rem; color: var(--j-text-muted); text-transform: uppercase; font-weight: 600; margin-bottom: 4px;">Instructions</div>
+                        <div style="font-size: 0.95rem; line-height: 1.5; color: var(--j-text);"><?php echo nl2br(htmlspecialchars($order['delivery_instructions'])); ?></div>
+                    </div>
+                    <?php endif; ?>
+                    <div>
+                        <div style="font-size: 0.8rem; color: var(--j-text-muted); text-transform: uppercase; font-weight: 600; margin-bottom: 4px;">Est. Delivery</div>
+                        <div style="font-size: 0.95rem; color: var(--j-text);"><?php echo date('M d, Y', strtotime($order['created_at'] . ' +2 days')); ?></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Payment Info -->
+            <?php if ($payment): ?>
+            <div class="j-card" style="margin-bottom: 24px;">
+                <div class="j-card-header" style="padding: 20px 24px; border-bottom: 1px solid var(--j-border-light);">
+                    <h5 style="margin: 0; font-weight: 700; font-size: 1.05rem;">
+                        <i class="fas fa-credit-card me-2" style="color:var(--j-primary)"></i> Payment Details
+                    </h5>
+                </div>
+                <div class="j-card-body" style="padding: 24px;">
+                    <div style="margin-bottom: 12px;">
+                        <span style="font-size: 0.9rem; color: var(--j-text-muted); font-weight: 600;">Method:</span>
+                        <span style="font-weight: 600; color: var(--j-text); float: right;"><?php echo ucfirst($payment['method']); ?></span>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <span style="font-size: 0.9rem; color: var(--j-text-muted); font-weight: 600;">Status:</span>
+                        <span class="status-badge-custom badge-<?php echo strtolower($payment['status']); ?>" style="float: right; padding: 2px 10px; font-size: 0.7rem;"><?php echo ucfirst($payment['status']); ?></span>
+                    </div>
+                    <?php if ($payment['mpesa_transaction_id']): ?>
+                    <div style="margin-bottom: 12px;">
+                        <span style="font-size: 0.9rem; color: var(--j-text-muted); font-weight: 600;">Transaction ID:</span>
+                        <span style="font-weight: 600; color: var(--j-text); float: right;"><?php echo htmlspecialchars($payment['mpesa_transaction_id']); ?></span>
+                    </div>
+                    <?php endif; ?>
+                    <div style="border-top: 1px solid var(--j-border-light); padding-top: 12px; margin-top: 12px;">
+                        <span style="font-size: 0.9rem; color: var(--j-text-muted); font-weight: 600;">Amount:</span>
+                        <span style="font-weight: 800; color: var(--j-primary); float: right; font-size: 1.1rem;">KSh <?php echo number_format($payment['amount'], 2); ?></span>
+                    </div>
+                </div>
+            </div>
+            <?php endif; ?>
+
+            <!-- Contact Info -->
+            <div class="j-card" style="margin-bottom: 24px;">
+                <div class="j-card-header" style="padding: 20px 24px; border-bottom: 1px solid var(--j-border-light);">
+                    <h5 style="margin: 0; font-weight: 700; font-size: 1.05rem;">
+                        <i class="fas fa-address-book me-2" style="color:var(--j-primary)"></i> Contact Details
+                    </h5>
+                </div>
+                <div class="j-card-body" style="padding: 24px;">
+                    <div style="margin-bottom: 20px;">
+                        <div style="font-weight: 600; color: var(--j-text); margin-bottom: 4px;">Vendor: <?php echo htmlspecialchars($order['vendor_name']); ?></div>
+                        <div style="font-size: 0.9rem; color: var(--j-text-muted);"><i class="fas fa-phone me-2"></i> <?php echo htmlspecialchars($order['vendor_phone']); ?></div>
+                        <div style="font-size: 0.9rem; color: var(--j-text-muted);"><i class="fas fa-envelope me-2"></i> <?php echo htmlspecialchars($order['vendor_email']); ?></div>
+                    </div>
+                    <div style="border-top: 1px solid var(--j-border-light); padding-top: 20px;">
+                        <div style="font-weight: 600; color: var(--j-text); margin-bottom: 4px;">Customer: <?php echo htmlspecialchars($order['customer_name']); ?></div>
+                        <div style="font-size: 0.9rem; color: var(--j-text-muted);"><i class="fas fa-phone me-2"></i> <?php echo htmlspecialchars($order['customer_phone']); ?></div>
+                        <div style="font-size: 0.9rem; color: var(--j-text-muted);"><i class="fas fa-envelope me-2"></i> <?php echo htmlspecialchars($order['customer_email']); ?></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <a href="orders.php" class="j-btn j-btn-outline" style="text-align: center; display: block; width: 100%;">
+                    <i class="fas fa-arrow-left me-2"></i> Back to Orders
+                </a>
+                <button class="j-btn j-btn-primary" style="width: 100%;" onclick="contactVendor()">
+                    <i class="fas fa-comments me-2"></i> Contact Vendor
+                </button>
+                <?php if ($order['status'] === 'pending'): ?>
+                <button class="j-btn" style="background: #dc2626; color: white; border: none; width: 100%;" onclick="cancelOrder(<?php echo $orderId; ?>)">
+                    <i class="fas fa-times me-2"></i> Cancel Order
+                </button>
                 <?php endif; ?>
-
-                <!-- Action Buttons -->
-                <div class="info-card">
-                    <div class="info-card-body">
-                        <a href="orders.php" class="btn btn-secondary-jirani w-100 mb-2">
-                            <i class="fas fa-arrow-left me-2"></i>Back to Orders
-                        </a>
-                        <?php if ($order['status'] === 'pending'): ?>
-                            <button class="btn btn-danger-jirani w-100 mb-2" onclick="cancelOrder(<?php echo $orderId; ?>)">
-                                <i class="fas fa-times me-2"></i>Cancel Order
-                            </button>
-                        <?php endif; ?>
-                        <button class="btn btn-jirani w-100" onclick="contactVendor()">
-                            <i class="fas fa-comments me-2"></i>Contact Vendor
-                        </button>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -809,4 +451,5 @@ function generateOrderTimeline($order)
 }
 ?>
 
-<?php include 'footer.php'; ?>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<?php require_once __DIR__ . '/footer.php'; ?>

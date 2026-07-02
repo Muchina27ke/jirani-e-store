@@ -5,7 +5,7 @@ $db = getDbConnection();
 require_once __DIR__ . '/includes/Wishlist.php';
 
 if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php?redirect=wishlist.php');
+    header('Location: ' . SITE_URL . 'login.php?redirect=wishlist.php');
     exit;
 }
 
@@ -15,32 +15,9 @@ $wishlistItems = $wishlistResult['success'] ? $wishlistResult['items'] : [];
 
 $pageTitle = "My Wishlist - Jirani";
 $currentPage = 'wishlist';
-require_once __DIR__ . '/includes/Auth.php';
-require_once __DIR__ . '/includes/Navigation.php';
-$auth = new Auth($db);
-$currentUser = null;
-if ($auth->isLoggedIn()) {
-    $currentUser = $auth->getUser();
-}
-$navigation = new Navigation($db, $currentUser, 'wishlist');
+$additionalCSS = ['https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css'];
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo htmlspecialchars($pageTitle); ?></title>
-    <link rel="icon" type="image/jpeg" href="title_logo.jpg">
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-    <!-- Main Theme CSS -->
-    <link rel="stylesheet" href="assets/css/style.css">
-    <!-- Custom Wishlist Styles (inline below) -->
-</head>
-<body>
-<?php echo $navigation->renderCustomerNav(); ?>
+<?php require_once __DIR__ . '/navbar.php'; ?>
 
 <style>
 :root {
@@ -204,7 +181,7 @@ html, body {
                 </div>
                 <h3 class="text-muted mb-3">Your wishlist is empty</h3>
                 <p class="text-muted mb-4">Looks like you haven't added any products to your wishlist yet.</p>
-                <a href="index.php" class="continue-shopping-btn">
+                <a href="<?php echo SITE_URL; ?>" class="continue-shopping-btn">
                     <i class="fas fa-arrow-left me-2"></i>Continue Shopping
                 </a>
             </div>

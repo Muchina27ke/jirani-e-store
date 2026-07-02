@@ -135,12 +135,13 @@ ob_start();
                     <?php foreach ($products as $product): ?>
                         <tr>
                             <td>
-                                <?php if ($product['image_url']): ?>
-                                    <img src="/jirani/<?php echo htmlspecialchars($product['image_url']); ?>" alt="<?php echo htmlspecialchars($product['name']); ?>" class="img-fluid">
+                                <?php if ($product['image_url']): 
+                                    $pImg = strpos($product['image_url'], 'uploads/') !== false ? SITE_URL . htmlspecialchars($product['image_url']) : SITE_URL . 'uploads/' . htmlspecialchars($product['image_url']);
+                                ?>
+                                    <img src="<?php echo $pImg; ?>" alt="<?php echo htmlspecialchars($product['name']); ?>" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                                 <?php else: ?>
-                                    <div class="text-center text-muted">
-                                        <i class="fas fa-image fa-3x"></i>
-                                        <p>No image available</p>
+                                    <div class="text-center text-muted" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; background: #f8f9fa; border-radius: 8px; border: 1px dashed #ccc;">
+                                        <i class="fas fa-image fa-2x"></i>
                                     </div>
                                 <?php endif; ?>
                             </td>
@@ -158,29 +159,29 @@ ob_start();
                                 </span>
                             </td>
                             <td>
-                                <div class="btn-group">
-                                    <button type="button" class="btn btn-sm btn-info" data-toggle="modal"
-                                        data-target="#viewProductModal<?php echo $product['id']; ?>">
+                                <div class="d-flex align-items-center" style="gap: 8px;">
+                                    <button type="button" class="btn btn-sm text-white" style="background-color: #17a2b8; border: none; border-radius: 6px; width: 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center;" data-toggle="modal"
+                                        data-target="#viewProductModal<?php echo $product['id']; ?>" title="View Details">
                                         <i class="fas fa-eye"></i>
                                     </button>
                                     <?php if ($isVendorVerified): ?>
                                         <a href="edit_product.php?id=<?php echo $product['id']; ?>"
-                                            class="btn btn-sm btn-primary">
+                                            class="btn btn-sm text-white" style="background-color: var(--j-primary, #28a745); border: none; border-radius: 6px; width: 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center;" title="Edit Product">
                                             <i class="fas fa-edit"></i>
                                         </a>
                                         <?php if ($product['status'] === 'active'): ?>
-                                            <button type="button" class="btn btn-sm btn-warning" data-toggle="modal"
-                                                data-target="#deactivateProductModal<?php echo $product['id']; ?>">
+                                            <button type="button" class="btn btn-sm text-dark" style="background-color: #ffc107; border: none; border-radius: 6px; width: 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center;" data-toggle="modal"
+                                                data-target="#deactivateProductModal<?php echo $product['id']; ?>" title="Pause Product">
                                                 <i class="fas fa-pause"></i>
                                             </button>
                                         <?php elseif ($product['status'] === 'inactive'): ?>
-                                            <button type="button" class="btn btn-sm btn-success" data-toggle="modal"
-                                                data-target="#activateProductModal<?php echo $product['id']; ?>">
+                                            <button type="button" class="btn btn-sm text-white" style="background-color: #28a745; border: none; border-radius: 6px; width: 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center;" data-toggle="modal"
+                                                data-target="#activateProductModal<?php echo $product['id']; ?>" title="Activate Product">
                                                 <i class="fas fa-play"></i>
                                             </button>
                                         <?php endif; ?>
-                                        <button type="button" class="btn btn-sm btn-danger" data-toggle="modal"
-                                            data-target="#deleteProductModal<?php echo $product['id']; ?>">
+                                        <button type="button" class="btn btn-sm text-white" style="background-color: #dc3545; border: none; border-radius: 6px; width: 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center;" data-toggle="modal"
+                                            data-target="#deleteProductModal<?php echo $product['id']; ?>" title="Delete Product">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     <?php endif; ?>
@@ -188,7 +189,7 @@ ob_start();
 
                                 <!-- View Product Modal -->
                                 <div class="modal fade" id="viewProductModal<?php echo $product['id']; ?>" tabindex="-1">
-                                    <div class="modal-dialog modal-lg">
+                                    <div class="modal-dialog modal-lg modal-dialog-centered">
                                         <div class="modal-content">
                                             <div class="modal-header">
                                                 <h5 class="modal-title">Product Details</h5>
@@ -199,10 +200,12 @@ ob_start();
                                             <div class="modal-body">
                                                 <div class="row">
                                                     <div class="col-md-6">
-                                                        <?php if ($product['image_url']): ?>
-                                                            <img src="/jirani/<?php echo htmlspecialchars($product['image_url']); ?>"
+                                                        <?php if ($product['image_url']): 
+                                                            $pImg = strpos($product['image_url'], 'uploads/') !== false ? SITE_URL . htmlspecialchars($product['image_url']) : SITE_URL . 'uploads/' . htmlspecialchars($product['image_url']);
+                                                        ?>
+                                                            <img src="<?php echo $pImg; ?>"
                                                                 alt="<?php echo htmlspecialchars($product['name']); ?>"
-                                                                class="img-fluid">
+                                                                class="img-fluid" style="border-radius: 8px; max-height: 250px; object-fit: contain; width: 100%;">
                                                         <?php else: ?>
                                                             <div class="text-center text-muted">
                                                                 <i class="fas fa-image fa-3x"></i>
@@ -299,9 +302,8 @@ ob_start();
                                 <!-- Activate Product Modal -->
                                 <div class="modal fade" id="activateProductModal<?php echo $product['id']; ?>"
                                     tabindex="-1">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                            <form method="POST">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <form method="POST" class="modal-content">
                                                 <input type="hidden" name="product_id"
                                                     value="<?php echo $product['id']; ?>">
                                                 <input type="hidden" name="action" value="active">
@@ -321,16 +323,14 @@ ob_start();
                                                     <button type="submit" class="btn btn-success">Activate</button>
                                                 </div>
                                             </form>
-                                        </div>
                                     </div>
                                 </div>
 
                                 <!-- Deactivate Product Modal -->
                                 <div class="modal fade" id="deactivateProductModal<?php echo $product['id']; ?>"
                                     tabindex="-1">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                            <form method="POST">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <form method="POST" class="modal-content">
                                                 <input type="hidden" name="product_id"
                                                     value="<?php echo $product['id']; ?>">
                                                 <input type="hidden" name="action" value="inactive">
@@ -350,15 +350,13 @@ ob_start();
                                                     <button type="submit" class="btn btn-warning">Deactivate</button>
                                                 </div>
                                             </form>
-                                        </div>
                                     </div>
                                 </div>
 
                                 <!-- Delete Product Modal -->
                                 <div class="modal fade" id="deleteProductModal<?php echo $product['id']; ?>" tabindex="-1">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                            <form method="POST">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <form method="POST" class="modal-content">
                                                 <input type="hidden" name="product_id"
                                                     value="<?php echo $product['id']; ?>">
                                                 <input type="hidden" name="action" value="delete">
@@ -380,7 +378,6 @@ ob_start();
                                                     <button type="submit" class="btn btn-danger">Delete</button>
                                                 </div>
                                             </form>
-                                        </div>
                                     </div>
                                 </div>
                             </td>

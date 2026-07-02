@@ -114,12 +114,10 @@ ob_start();
 ?>
 
 <!-- Content Wrapper -->
-<div class="content-wrapper">
-  
-
-  <!-- Main content -->
-  <section class="content">
-    <div class="container-fluid">
+<div class="container-fluid mt-4 mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0" style="font-family: var(--j-font-heading); font-weight: 700; color: var(--j-primary);">Verification Status</h1>
+    </div>
 
       <?php if (isset($_SESSION['success'])): ?>
         <div class="alert alert-success alert-dismissible">
@@ -140,11 +138,11 @@ ob_start();
       <!-- Verification Status Card -->
       <div class="row">
         <div class="col-12">
-          <div class="card">
-            <div class="card-header">
-              <h3 class="card-title">Your Verification Status</h3>
+          <div class="card shadow-sm border-0 mb-4" style="border-radius: var(--j-radius-lg); overflow: hidden;">
+            <div class="card-header bg-white border-0 pt-4 pb-2 px-4">
+              <h3 class="card-title mb-0" style="font-family: var(--j-font-heading); font-size: 1.25rem; font-weight: 600; color: #4b5563;">Your Verification Status</h3>
             </div>
-            <div class="card-body">
+            <div class="card-body px-4 pb-4 pt-2">
               <div id="verification-status">
                 <?php if ($vendorStatus === 'approved'): ?>
                   <div class="alert alert-success">
@@ -182,39 +180,39 @@ ob_start();
 
       <!-- Business Information Form -->
       <?php if ($vendorStatus !== 'approved'): ?>
-        <div class="row">
-          <div class="col-md-6">
-            <div class="card">
-              <div class="card-header">
-                <h3 class="card-title">Business Information</h3>
+        <div class="row g-4">
+          <div class="col-md-6 mb-4">
+            <div class="card shadow-sm border-0 h-100" style="border-radius: var(--j-radius-lg); overflow: hidden;">
+              <div class="card-header bg-white border-0 pt-4 pb-2 px-4">
+                <h3 class="card-title mb-0" style="font-family: var(--j-font-heading); font-size: 1.1rem; font-weight: 600; color: #4b5563;">Business Information</h3>
               </div>
-              <div class="card-body">
+              <div class="card-body px-4 pb-4 pt-2">
                 <form method="POST" enctype="multipart/form-data">
                   <input type="hidden" name="action" value="submit_business_info">
                   <div class="form-group">
-                    <label for="business_name">Business Name</label>
+                    <label for="business_name" style="font-weight: 500; color: #374151;">Business Name</label>
                     <input type="text" class="form-control" id="business_name" name="business_name"
                       value="<?php echo htmlspecialchars($vendorDetails['business_name'] ?? ''); ?>"
-                      placeholder="Enter your business name" required>
+                      placeholder="Enter your business name" style="border-radius: 8px; border: 1px solid #e5e7eb; padding: 10px 15px;" required>
                   </div>
                   <div class="form-group">
-                    <label for="business_cert">Business Certificate</label>
+                    <label for="business_cert" style="font-weight: 500; color: #374151;">Business Certificate</label>
                     <input type="file" class="form-control-file" id="business_cert" name="business_cert"
                       accept=".jpg,.jpeg,.png,.pdf" required>
-                    <small class="form-text text-muted">
-                      <i class="fas fa-info-circle"></i> Upload your business registration certificate.<br>
+                    <small class="form-text text-muted mt-2">
+                      <i class="fas fa-info-circle mr-1"></i> Upload your business registration certificate.<br>
                       <strong>Accepted formats:</strong> JPG, PNG, PDF (Max size: 5MB)
                     </small>
                     <?php if (!empty($vendorVerification['business_doc_url'])): ?>
-                      <div class="mt-2">
-                        <span class="badge badge-success">✓ Certificate uploaded</span>
-                        <a href="../<?php echo htmlspecialchars($vendorVerification['business_doc_url']); ?>" target="_blank" class="btn btn-sm btn-outline-info ml-2">
+                      <div class="mt-3 p-3" style="background-color: #f8f9fa; border-radius: 8px; border: 1px solid #e9ecef;">
+                        <span class="badge" style="padding: 6px 12px; border-radius: 50px; background: rgba(16, 185, 129, 0.15); color: #059669; font-weight: 600;">✓ Certificate uploaded</span>
+                        <a href="../<?php echo htmlspecialchars($vendorVerification['business_doc_url']); ?>" target="_blank" class="btn btn-sm btn-outline-info ml-2" style="border-radius: 6px;">
                           <i class="fas fa-eye"></i> View Current
                         </a>
                       </div>
                     <?php endif; ?>
                   </div>
-                  <button type="submit" class="btn btn-primary">
+                  <button type="submit" class="btn btn-primary" style="background: var(--j-primary); border-radius: 50px; font-weight: 600; padding: 10px 24px; border: none; box-shadow: 0 4px 6px rgba(99,102,241,0.2);">
                     <i class="fas fa-upload"></i> Submit Business Information
                   </button>
                 </form>
@@ -222,32 +220,32 @@ ob_start();
             </div>
           </div>
 
-          <div class="col-md-6">
-            <div class="card">
-              <div class="card-header">
-                <h3 class="card-title">ID Document</h3>
+          <div class="col-md-6 mb-4">
+            <div class="card shadow-sm border-0 h-100" style="border-radius: var(--j-radius-lg); overflow: hidden;">
+              <div class="card-header bg-white border-0 pt-4 pb-2 px-4">
+                <h3 class="card-title mb-0" style="font-family: var(--j-font-heading); font-size: 1.1rem; font-weight: 600; color: #4b5563;">ID Document</h3>
               </div>
-              <div class="card-body">
+              <div class="card-body px-4 pb-4 pt-2">
                 <form method="POST" enctype="multipart/form-data">
                   <input type="hidden" name="action" value="submit_id_document">
                   <div class="form-group">
-                    <label for="id_document">ID Document</label>
+                    <label for="id_document" style="font-weight: 500; color: #374151;">ID Document</label>
                     <input type="file" class="form-control-file" id="id_document" name="id_document"
                       accept=".jpg,.jpeg,.png,.pdf" required>
-                    <small class="form-text text-muted">
-                      <i class="fas fa-info-circle"></i> Upload your National ID or Passport.<br>
+                    <small class="form-text text-muted mt-2">
+                      <i class="fas fa-info-circle mr-1"></i> Upload your National ID or Passport.<br>
                       <strong>Accepted formats:</strong> JPG, PNG, PDF (Max size: 5MB)
                     </small>
                     <?php if (!empty($vendorVerification['id_doc_url'])): ?>
-                      <div class="mt-2">
-                        <span class="badge badge-success">✓ ID document uploaded</span>
-                        <a href="../<?php echo htmlspecialchars($vendorVerification['id_doc_url']); ?>" target="_blank" class="btn btn-sm btn-outline-info ml-2">
+                      <div class="mt-3 p-3" style="background-color: #f8f9fa; border-radius: 8px; border: 1px solid #e9ecef;">
+                        <span class="badge" style="padding: 6px 12px; border-radius: 50px; background: rgba(16, 185, 129, 0.15); color: #059669; font-weight: 600;">✓ ID document uploaded</span>
+                        <a href="../<?php echo htmlspecialchars($vendorVerification['id_doc_url']); ?>" target="_blank" class="btn btn-sm btn-outline-info ml-2" style="border-radius: 6px;">
                           <i class="fas fa-eye"></i> View Current
                         </a>
                       </div>
                     <?php endif; ?>
                   </div>
-                  <button type="submit" class="btn btn-primary">
+                  <button type="submit" class="btn btn-primary" style="background: var(--j-primary); border-radius: 50px; font-weight: 600; padding: 10px 24px; border: none; box-shadow: 0 4px 6px rgba(99,102,241,0.2);">
                     <i class="fas fa-upload"></i> Submit ID Document
                   </button>
                 </form>
@@ -260,13 +258,13 @@ ob_start();
       <!-- Verification Requirements -->
       <div class="row">
         <div class="col-12">
-          <div class="card">
-            <div class="card-header">
-              <h3 class="card-title">Verification Requirements</h3>
+          <div class="card shadow-sm border-0 mb-4" style="border-radius: var(--j-radius-lg); overflow: hidden;">
+            <div class="card-header bg-white border-0 pt-4 pb-2 px-4">
+              <h3 class="card-title mb-0" style="font-family: var(--j-font-heading); font-size: 1.1rem; font-weight: 600; color: #4b5563;">Verification Requirements</h3>
             </div>
-            <div class="card-body">
-              <div class="alert alert-info">
-                <h5><i class="icon fas fa-info"></i> Document Upload Requirements:</h5>
+            <div class="card-body px-4 pb-4 pt-2">
+              <div class="alert" style="background-color: rgba(14, 165, 233, 0.05); border: 1px solid rgba(14, 165, 233, 0.1); border-radius: 8px; color: #0369a1;">
+                <h5 class="font-weight-bold mb-3"><i class="icon fas fa-info-circle mr-2"></i> Document Upload Requirements:</h5>
                 <div class="row">
                   <div class="col-md-6">
                     <h6><i class="fas fa-file-alt"></i> Required Documents:</h6>
@@ -287,18 +285,18 @@ ob_start();
                     </ul>
                   </div>
                 </div>
-                <div class="alert alert-warning mt-3">
-                  <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="alert mt-4 mb-0" style="background-color: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 8px; color: #92400e;">
+                  <i class="fas fa-exclamation-triangle mr-2"></i>
                   <strong>Important:</strong> All documents must be clear and readable. Verification typically takes 1-3
-                  business days.</p>
+                  business days.
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-    </div>
-  </section>
 </div>
 
 <?php

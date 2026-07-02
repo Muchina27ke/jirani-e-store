@@ -1,101 +1,15 @@
 <?php
 require_once __DIR__ . '/config/config.php';
-require_once __DIR__ . '/includes/Auth.php';
-require_once __DIR__ . '/includes/Navigation.php';
-$base_url = './';
 
-// Database connection
-$db = getDbConnection();
-$auth = new Auth($db);
-$currentUser = null;
-if ($auth->isLoggedIn()) {
-    $currentUser = $auth->getUser();
-}
-$navigation = new Navigation($db, $currentUser, 'contact');
+$pageTitle = 'Contact Us';
+$currentPage = 'contact';
+$additionalCSS = [
+    'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css',
+    'css/contactus.css',
+    'contact_us.css'
+];
+require_once __DIR__ . '/navbar.php';
 ?>
-<!-- contact_us.php -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contact Us - Jirani E-Store</title>
-    <link rel="icon" type="image/jpeg" href="../title_logo.jpg">
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/contactus.css">
-    <link rel="stylesheet" href="contact_us.css">
-    <link rel="stylesheet" href="<?= $base_url ?>css/footer.css">
-    <style>
-        :root {
-            /* Primary Color Palette */
-            --jirani-primary: #2A5C3D;
-            /* Forest Green */
-            --jirani-secondary: #FFA726;
-            /* Warm Orange */
-            --jirani-white: #FFFFFF;
-            /* White */
-            --jirani-gray: #333333;
-            /* Dark Gray */
-        }
-
-        /* Base Elements */
-        body {
-            background-color: var(--jirani-white);
-            color: var(--jirani-gray);
-        }
-
-        .navbar {
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            background-color: var(--jirani-white) !important;
-        }
-
-        /* Text Elements */
-        .navbar-brand,
-        .nav-link {
-            color: var(--jirani-primary) !important;
-        }
-
-        h1,
-        h2,
-        h3 {
-            color: var(--jirani-primary);
-        }
-
-        /* Buttons */
-        .btn-jirani {
-            background-color: var(--jirani-primary);
-            border: none;
-            color: var(--jirani-white);
-        }
-
-        .btn-jirani:hover {
-            background-color: var(--jirani-secondary);
-            color: var(--jirani-gray);
-        }
-
-        /* Dropdowns */
-        .dropdown-menu {
-            background-color: var(--jirani-primary);
-            border: 1px solid var(--jirani-secondary);
-        }
-
-        .dropdown-item {
-            color: var(--jirani-white) !important;
-        }
-
-        .dropdown-item:hover {
-            background-color: var(--jirani-secondary) !important;
-        }
-    </style>
-</head>
-<body>
-    <div class="container-fluid p-0">
-        <!-- Navbar -->
-        <?php echo $navigation->renderCustomerNav(); ?>
         <!-- Contact Content -->
         <section class="contact-hero">
             <div class="container text-center">
@@ -121,7 +35,7 @@ $navigation = new Navigation($db, $currentUser, 'contact');
                             </div>
                         <?php endif; ?>
                         
-                        <form id="contactForm" action="./submit_contact.php" method="POST" novalidate>
+                        <form id="contactForm" action="<?php echo SITE_URL; ?>submit_contact.php" method="POST">
                             <div class="row g-4">
                                 <div class="col-md-6">
                                     <label for="name" class="form-label">Name *</label>
@@ -180,7 +94,7 @@ $navigation = new Navigation($db, $currentUser, 'contact');
 
                               
                                 <!-- From Uiverse.io by Carlos-vargs --> 
-                                <button class="button">
+                                <button type="submit" class="button">
                                     <span class="text">send message</span>
                                     <span class="icon"><svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" data-icon="paper-plane" width="20px" aria-hidden="true"><path d="M476 3.2L12.5 270.6c-18.1 10.4-15.8 35.6 2.2 43.2L121 358.4l287.3-253.2c5.5-4.9 13.3 2.6 8.6 8.3L176 407v80.5c0 23.6 28.5 32.9 42.5 15.8L282 426l124.6 52.2c14.2 6 30.4-2.9 33-18.2l72-432C515 7.8 493.3-6.8 476 3.2z" fill="currentColor"></path></svg></span>
                                 </button>
@@ -205,15 +119,8 @@ $navigation = new Navigation($db, $currentUser, 'contact');
                 </div>
             </div>
         </main>
-
-       
     </div>
-      <!-- Footer -->
-      <?php 
-// Define base URL at the top of your page
-$base_url = './'; // Adjust based on your directory structure
-include 'footer.php'; 
-?>
+    
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Form Validation -->
@@ -237,24 +144,29 @@ document.addEventListener('DOMContentLoaded', function() {
     const dropdownButton = document.querySelector('#subjectDropdown');
     const hiddenInput = document.querySelector('#subject');
 
-    dropdownItems.forEach(item => {
-        item.addEventListener('click', function(e) {
-            e.preventDefault();
-            const value = this.getAttribute('data-value');
-            dropdownButton.textContent = value;
-            hiddenInput.value = value;
-            dropdownButton.classList.remove('is-invalid');
+    if (dropdownItems && dropdownButton && hiddenInput) {
+        dropdownItems.forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                const value = this.getAttribute('data-value');
+                dropdownButton.textContent = value;
+                hiddenInput.value = value;
+                dropdownButton.classList.remove('is-invalid');
+            });
         });
-    });
+    }
 
     // Add validation
-    document.querySelector('form').addEventListener('submit', function(e) {
-        if (!hiddenInput.value) {
-            dropdownButton.classList.add('is-invalid');
-            e.preventDefault();
-        }
-    });
+    const form = document.querySelector('form');
+    if (form && hiddenInput) {
+        form.addEventListener('submit', function(e) {
+            if (!hiddenInput.value && dropdownButton) {
+                dropdownButton.classList.add('is-invalid');
+                e.preventDefault();
+            }
+        });
+    }
 });
 </script>
-</body>
-</html>
+
+<?php require_once __DIR__ . '/footer.php'; ?>

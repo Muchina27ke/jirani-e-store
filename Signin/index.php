@@ -1,247 +1,391 @@
 <?php
 require_once dirname(__DIR__) . "/config/config.php";
 
-$error = "";
-$success = "";
-
-// Add a variable to hold a JS toast message
-$toast_message = '';
-$toast_type = '';
-
-// Check if user is already logged in
-if ($user->is_logged_in()) {
-  // Redirect based on role
-  if ($user->is_admin()) {
-    header("Location: ../admin/index.php");
-  } elseif ($user->is_vendor()) {
-    header("Location: ../seller/dashboard.php");
-  } else {
-    header("Location: ../index.php");
-  }
-  exit();
-}
-
-// Check for registration success message
-if (isset($_GET['registered']) && $_GET['registered'] === 'true') {
-  $success = "Registration successful! Please login with your credentials.";
-}
-
-// Handle forgot password POST
-$forgot_error = '';
+$error   = '';
+$success = '';
+$forgot_error   = '';
 $forgot_success = '';
-if (isset($_POST['forgot_password_submit'])) {
-  $identifier = trim($_POST['forgot_email_or_phone'] ?? '');
-  if (empty($identifier)) {
-    $forgot_error = 'Please enter your email or phone number.';
-    $toast_message = $forgot_error;
-    $toast_type = 'error';
-  } else {
-    $auth = new Auth($conn);
-    $result = $auth->generatePasswordResetToken($identifier);
-    if ($result['success']) {
-      $forgot_success = 'Password reset instructions have been sent to your email (if it exists in our system).';
-      $toast_message = $forgot_success;
-      $toast_type = 'success';
-    } else {
-      $forgot_error = $result['message'];
-      $toast_message = $forgot_error;
-      $toast_type = 'error';
-    }
-  }
+
+// Redirect if already logged in
+if ($user->is_logged_in()) {
+    if ($user->is_admin())   header("Location: ../admin/index.php");
+    elseif ($user->is_vendor()) header("Location: ../seller/dashboard.php");
+    else header("Location: ../index.php");
+    exit;
 }
 
-if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['email_or_phone'], $_POST['password'])) {
-  $email_or_phone = trim($_POST["email_or_phone"]);
-  $password = trim($_POST["password"]);
+if (isset($_GET['registered']) && $_GET['registered'] === 'true') {
+    $success = "Account created! Please sign in.";
+}
 
-  if (empty($email_or_phone) || empty($password)) {
-    $error = "Email/Phone and password are required.";
-    $toast_message = $error;
-    $toast_type = 'error';
-  } else {
-    // Use the User class to login
-    if ($user->login($email_or_phone, $password)) {
-      // Redirect based on role
-      if ($user->is_admin()) {
-        header("Location: ../admin/index.php");
-      } elseif ($user->is_vendor()) {
-        header("Location: ../seller/dashboard.php");
-      } else {
-        header("Location: ../index.php");
-      }
-      exit();
+// Forgot password
+if (isset($_POST['forgot_password_submit'])) {
+    $identifier = trim($_POST['forgot_email_or_phone'] ?? '');
+    if (empty($identifier)) {
+        $forgot_error = 'Please enter your email or phone number.';
     } else {
-      $error = "Invalid email/phone or password.";
-      $toast_message = $error;
-      $toast_type = 'error';
+        $result = $auth->generatePasswordResetToken($identifier);
+        if ($result['success']) {
+            $forgot_success = 'Reset instructions sent to your email (if it exists).';
+        } else {
+            $forgot_error = $result['message'];
+        }
     }
-  }
+}
+
+// Login
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email_or_phone'], $_POST['password'])) {
+    $email_or_phone = trim($_POST['email_or_phone']);
+    $password       = $_POST['password'];
+    $remember       = isset($_POST['remember']);
+
+    if (empty($email_or_phone) || empty($password)) {
+        $error = 'Email/phone and password are required.';
+    } elseif ($user->login($email_or_phone, $password, $remember)) {
+        $redirect = $_GET['redirect'] ?? null;
+        if ($user->is_admin())    header("Location: ../admin/index.php");
+        elseif ($user->is_vendor()) header("Location: ../seller/dashboard.php");
+        elseif ($redirect) header("Location: ../" . urldecode($redirect));
+        else header("Location: ../index.php");
+        exit;
+    } else {
+        $error = 'Invalid email/phone or password.';
+    }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Jirani - Login</title>
-  <link rel="stylesheet" href="../css/Signin_style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In — Jirani</title>
+    <link rel="icon" type="image/jpeg" href="../title_logo.jpg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/jirani-design-system.css">
+    <style>
+    html, body { height: 100%; }
+
+    .auth-page {
+        min-height: 100vh;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        font-family: var(--j-font-body);
+    }
+
+    /* Brand side */
+    .auth-brand {
+        background: linear-gradient(145deg, var(--j-primary) 0%, var(--j-primary-dark) 55%, #0a1f10 100%);
+        padding: 60px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .auth-brand::before {
+        content:''; position:absolute;
+        width:500px;height:500px;border-radius:50%;
+        background:rgba(255,255,255,0.03);
+        top:-150px;right:-150px;
+    }
+    .auth-brand::after {
+        content:''; position:absolute;
+        width:300px;height:300px;border-radius:50%;
+        background:rgba(255,167,38,0.07);
+        bottom:-80px;left:-60px;
+    }
+
+    .auth-brand-inner { position:relative;z-index:1; }
+
+    .auth-brand-logo {
+        display:flex;align-items:center;gap:12px;
+        font-family:var(--j-font-heading);font-size:1.8rem;font-weight:800;
+        color:white;margin-bottom:48px;
+    }
+
+    .auth-brand-logo .logo-icon {
+        width:44px;height:44px;border-radius:12px;
+        background:rgba(255,255,255,0.15);
+        display:flex;align-items:center;justify-content:center;
+        font-size:1.4rem;
+    }
+
+    .auth-brand h2 {
+        font-family:var(--j-font-heading);font-size:2.4rem;font-weight:800;
+        line-height:1.15;color:white;margin-bottom:20px;
+    }
+
+    .auth-brand h2 .highlight { color:var(--j-accent); }
+
+    .auth-brand p {
+        color:rgba(255,255,255,0.65);font-size:1rem;
+        line-height:1.7;max-width:340px;margin-bottom:48px;
+    }
+
+    .auth-features { list-style:none;padding:0;display:flex;flex-direction:column;gap:14px; }
+    .auth-features li {
+        display:flex;align-items:center;gap:12px;
+        font-size:0.92rem;color:rgba(255,255,255,0.8);
+    }
+    .auth-features li .feat-icon {
+        width:34px;height:34px;border-radius:8px;
+        background:rgba(255,255,255,0.1);
+        display:flex;align-items:center;justify-content:center;
+        font-size:0.9rem;flex-shrink:0;
+    }
+
+    /* Form side */
+    .auth-form-panel {
+        background: var(--j-bg);
+        display:flex;align-items:center;justify-content:center;
+        padding:40px;
+    }
+
+    .auth-form-inner { width:100%;max-width:420px; }
+
+    .auth-form-inner h3 {
+        font-family:var(--j-font-heading);font-size:1.8rem;font-weight:800;
+        margin-bottom:6px;color:var(--j-text);
+    }
+
+    .auth-form-inner .subtitle {
+        font-size:0.9rem;color:var(--j-text-muted);margin-bottom:32px;
+    }
+
+    .auth-form-card {
+        background:white;
+        border-radius:var(--j-radius-xl);
+        padding:36px;
+        box-shadow:var(--j-shadow);
+        border:1px solid var(--j-border-light);
+    }
+
+    .j-input-with-icon { position:relative; }
+    .j-input-with-icon .fa-icon {
+        position:absolute;left:14px;top:50%;transform:translateY(-50%);
+        color:var(--j-text-muted);font-size:0.9rem;pointer-events:none;
+    }
+    .j-input-with-icon .j-input { padding-left:42px; }
+
+    .j-input-with-icon .toggle-pw {
+        position:absolute;right:14px;top:50%;transform:translateY(-50%);
+        color:var(--j-text-muted);cursor:pointer;font-size:0.9rem;
+        background:none;border:none;padding:0;
+    }
+    .j-input-with-icon .toggle-pw:hover { color:var(--j-primary); }
+
+    .divider-or {
+        display:flex;align-items:center;gap:12px;
+        font-size:0.8rem;color:var(--j-text-light);margin:20px 0;
+    }
+    .divider-or::before,.divider-or::after { content:'';flex:1;height:1px;background:var(--j-border-light); }
+
+    /* Forgot modal */
+    .forgot-backdrop {
+        position:fixed;inset:0;background:rgba(0,0,0,0.5);
+        backdrop-filter:blur(4px);
+        display:none;align-items:center;justify-content:center;
+        z-index:2000;
+    }
+    .forgot-backdrop.open { display:flex; }
+    .forgot-card {
+        background:white;border-radius:var(--j-radius-xl);
+        padding:36px;max-width:400px;width:90%;
+        position:relative;box-shadow:var(--j-shadow-lg);
+    }
+
+    @media(max-width:768px) {
+        .auth-page { grid-template-columns:1fr; }
+        .auth-brand { display:none; }
+        .auth-form-panel { padding:24px 16px;min-height:100vh; }
+    }
+    </style>
 </head>
-
 <body>
+<div class="auth-page">
 
-  <!-- login form -->
-  <div class="form-container">
-    <p class="title">Login To Jirani</p>
-
-    <?php if (!empty($error)): ?>
-      <div class="error-message"
-        style="color: red; margin-bottom: 10px; padding: 10px; background-color: #ffe6e6; border: 1px solid #ff0000; border-radius: 5px;">
-        <?php echo htmlspecialchars($error); ?>
-      </div>
-    <?php endif; ?>
-
-    <?php if (!empty($success)): ?>
-      <div class="success-message"
-        style="color: green; margin-bottom: 10px; padding: 10px; background-color: #e6ffe6; border: 1px solid #00ff00; border-radius: 5px;">
-        <?php echo htmlspecialchars($success); ?>
-      </div>
-    <?php endif; ?>
-
-    <form class="form" method="POST" action="">
-      <div class="input-group">
-        <label for="email_or_phone"></label>
-        <input type="text" name="email_or_phone" id="email_or_phone" placeholder="Email or Phone Number"
-          value="<?php echo htmlspecialchars($_POST['email_or_phone'] ?? ''); ?>" required>
-      </div>
-      <div class="input-group">
-        <label for="password"></label>
-        <input type="password" name="password" id="password" placeholder="Password" required>
-        <div class="forgot">
-          <a href="#" onclick="document.getElementById('forgot-modal').style.display='block';return false;">Forgot
-            Password ?</a>
+    <!-- ── Brand panel ──────────────────────────────────── -->
+    <div class="auth-brand">
+        <div class="auth-brand-inner">
+            <div class="auth-brand-logo">
+                <div class="logo-icon">🌱</div>
+                Jirani
+            </div>
+            <h2>Welcome<br>back to <span class="highlight">local</span></h2>
+            <p>Sign in to shop fresh produce and handmade goods from vendors in your community.</p>
+            <ul class="auth-features">
+                <li>
+                    <div class="feat-icon" style="background:rgba(0,166,81,0.2);">💚</div>
+                    M-Pesa protected checkout
+                </li>
+                <li>
+                    <div class="feat-icon" style="background:rgba(255,167,38,0.2);">🛡️</div>
+                    Escrow-secured payments
+                </li>
+                <li>
+                    <div class="feat-icon" style="background:rgba(59,130,246,0.2);">📍</div>
+                    Location-aware delivery
+                </li>
+            </ul>
         </div>
-      </div>
-      <div class="remember-me">
-        <input type="checkbox" id="remember" name="remember" value="1">
-        <label for="remember">Remember me</label>
-      </div>
-      <button type="submit" class="sign">Sign in</button>
-    </form>
-
-    <div class="social-message">
-      <div class="line"></div>
-      <p class="message">Login with social accounts</p>
-      <div class="line"></div>
     </div>
 
-    <div>
-      <!-- Social login icons -->
-      <ul class="example-2">
-        <li class="icon-content">
-          <a href="https://linkedin.com/" aria-label="LinkedIn" data-social="linkedin">
-            <div class="filled"></div>
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-linkedin"
-              viewBox="0 0 16 16" xml:space="preserve">
-              <path
-                d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854zm4.943 12.248V6.169H2.542v7.225zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248S2.4 3.226 2.4 3.934c0 .694.521 1.248 1.327 1.248zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016l.016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225z"
-                fill="currentColor"></path>
-            </svg>
-          </a>
-          <div class="tooltip">LinkedIn</div>
-        </li>
-        <li class="icon-content">
-          <a href="https://www.github.com/" aria-label="GitHub" data-social="github">
-            <div class="filled"></div>
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-github"
-              viewBox="0 0 16 16" xml:space="preserve">
-              <path
-                d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8"
-                fill="currentColor"></path>
-            </svg>
-          </a>
-          <div class="tooltip">GitHub</div>
-        </li>
-        <li class="icon-content">
-          <a href="https://www.instagram.com/" aria-label="Instagram" data-social="instagram">
-            <div class="filled"></div>
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-instagram"
-              viewBox="0 0 16 16" xml:space="preserve">
-              <path
-                d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.9 3.9 0 0 0-1.417.923A3.9 3.9 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.9 3.9 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.9 3.9 0 0 0-.923-1.417A3.9 3.9 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0zm-.717 1.442h.718c2.136 0 2.389.007 3.232.046.78.035 1.204.166 1.486.275.373.145.64.319.92.599s.453.546.598.92c.11.281.24.705.275 1.485.039.843.047 1.096.047 3.231s-.008 2.389-.047 3.232c-.035.78-.166 1.203-.275 1.485a2.5 2.5 0 0 1-.599.919c-.28.28-.546.453-.92.598-.28.11-.704.24-1.485.276-.843.038-1.096.047-3.232.047s-2.39-.009-3.233-.047c-.78-.036-1.203-.166-1.485-.276a2.5 2.5 0 0 1-.92-.598 2.5 2.5 0 0 1-.6-.92c-.109-.281-.24-.705-.275-1.485-.038-.843-.046-1.096-.046-3.233s.008-2.388.046-3.231c.036-.78.166-1.204.276-1.486.145-.373.319-.64.599-.92s.546-.453.92-.598c.282-.11.705-.24 1.485-.276.738-.034 1.024-.044 2.515-.045zm4.988 1.328a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92m-4.27 1.122a4.109 4.109 0 1 0 0 8.217 4.109 4.109 0 0 0 0-8.217m0 1.441a2.667 2.667 0 1 1 0 5.334 2.667 2.667 0 0 1 0-5.334"
-                fill="currentColor"></path>
-            </svg>
-          </a>
-          <div class="tooltip">Instagram</div>
-        </li>
-      </ul>
+    <!-- ── Form panel ───────────────────────────────────── -->
+    <div class="auth-form-panel">
+        <div class="auth-form-inner">
+            <div style="text-align:center;margin-bottom:28px;">
+                <a href="../index.php" style="font-family:var(--j-font-heading);font-size:1.5rem;font-weight:800;color:var(--j-primary);text-decoration:none;">
+                    🌱 Jirani
+                </a>
+            </div>
+
+            <h3 style="text-align:center;">Sign In</h3>
+            <p class="subtitle" style="text-align:center;">Welcome back — let's get shopping</p>
+
+            <?php if ($error): ?>
+            <div class="j-alert j-alert-danger" style="margin-bottom:20px;">
+                <i class="fas fa-exclamation-circle"></i>
+                <?php echo htmlspecialchars($error); ?>
+            </div>
+            <?php endif; ?>
+
+            <?php if ($success): ?>
+            <div class="j-alert j-alert-success" style="margin-bottom:20px;">
+                <i class="fas fa-check-circle"></i>
+                <?php echo htmlspecialchars($success); ?>
+            </div>
+            <?php endif; ?>
+
+            <div class="auth-form-card">
+                <form method="POST" action="">
+                    <div class="j-form-group">
+                        <label class="j-label">Email or Phone <span class="required">*</span></label>
+                        <div class="j-input-with-icon">
+                            <i class="fas fa-user fa-icon"></i>
+                            <input type="text" name="email_or_phone" id="email_or_phone" class="j-input"
+                                   placeholder="name@email.com or 07XXXXXXXX"
+                                   value="<?php echo htmlspecialchars($_POST['email_or_phone'] ?? ''); ?>"
+                                   required autocomplete="username">
+                        </div>
+                    </div>
+
+                    <div class="j-form-group">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;">
+                            <label class="j-label" style="margin:0;">Password <span class="required">*</span></label>
+                            <button type="button" class="j-btn j-btn-ghost j-btn-sm"
+                                    onclick="document.getElementById('forgotModal').classList.add('open')"
+                                    style="font-size:0.78rem;padding:4px 8px;color:var(--j-primary);">
+                                Forgot password?
+                            </button>
+                        </div>
+                        <div class="j-input-with-icon">
+                            <i class="fas fa-lock fa-icon"></i>
+                            <input type="password" name="password" id="password" class="j-input"
+                                   placeholder="Your password" required autocomplete="current-password"
+                                   style="padding-right:44px;">
+                            <button type="button" class="toggle-pw" onclick="togglePw()" id="pwToggle">
+                                <i class="fas fa-eye" id="pwEye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px;">
+                        <input type="checkbox" name="remember" id="remember" style="width:16px;height:16px;cursor:pointer;accent-color:var(--j-primary);">
+                        <label for="remember" style="font-size:0.85rem;color:var(--j-text-muted);cursor:pointer;margin:0;">Remember me for 30 days</label>
+                    </div>
+
+                    <button type="submit" class="j-btn j-btn-primary j-btn-full j-btn-lg" id="loginBtn">
+                        <i class="fas fa-sign-in-alt"></i> Sign In
+                    </button>
+                </form>
+
+                <div class="divider-or">or continue with</div>
+
+                <div style="display:flex;gap:10px;">
+                    <a href="https://wa.me/" class="j-btn j-btn-ghost" style="flex:1;justify-content:center;gap:6px;">
+                        <i class="fab fa-whatsapp" style="color:#25d366;"></i> WhatsApp
+                    </a>
+                    <a href="https://google.com" class="j-btn j-btn-ghost" style="flex:1;justify-content:center;gap:6px;">
+                        <i class="fab fa-google" style="color:#ea4335;"></i> Google
+                    </a>
+                </div>
+            </div>
+
+            <p style="text-align:center;margin-top:20px;font-size:0.88rem;color:var(--j-text-muted);">
+                Don't have an account?
+                <a href="../Register/index.php" style="font-weight:600;color:var(--j-primary);">Create one free</a>
+            </p>
+        </div>
     </div>
+</div>
 
-    <p class="signup">Don't have an account?
-      <a rel="noopener noreferrer" href="../Register/index.php" class="">Sign up</a>
-    </p>
+<!-- ── Forgot Password Modal ────────────────────────────── -->
+<div class="forgot-backdrop" id="forgotModal">
+    <div class="forgot-card">
+        <button onclick="document.getElementById('forgotModal').classList.remove('open')"
+                style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--j-text-muted);">
+            <i class="fas fa-times"></i>
+        </button>
+        <h4 style="font-family:var(--j-font-heading);font-weight:700;margin-bottom:6px;">Reset Password</h4>
+        <p style="font-size:0.85rem;color:var(--j-text-muted);margin-bottom:20px;">We'll send reset instructions to your email.</p>
 
-    <div class="signin">
-      <p><a href="../index.php">JIRANI</a></p>
+        <?php if ($forgot_error): ?>
+        <div class="j-alert j-alert-danger" style="margin-bottom:14px;"><i class="fas fa-exclamation-circle"></i> <?php echo htmlspecialchars($forgot_error); ?></div>
+        <?php endif; ?>
+        <?php if ($forgot_success): ?>
+        <div class="j-alert j-alert-success" style="margin-bottom:14px;"><i class="fas fa-check-circle"></i> <?php echo htmlspecialchars($forgot_success); ?></div>
+        <?php endif; ?>
+
+        <form method="POST" action="">
+            <div class="j-form-group">
+                <label class="j-label">Email or Phone</label>
+                <div class="j-input-with-icon">
+                    <i class="fas fa-envelope fa-icon"></i>
+                    <input type="text" name="forgot_email_or_phone" class="j-input" required
+                           placeholder="your@email.com or 07XXXXXXXX">
+                </div>
+            </div>
+            <button type="submit" name="forgot_password_submit" class="j-btn j-btn-primary j-btn-full">
+                <i class="fas fa-paper-plane"></i> Send Reset Link
+            </button>
+        </form>
     </div>
-  </div>
+</div>
 
-  <!-- Forgot Password Modal -->
-  <div id="forgot-modal"
-    style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.4);z-index:1000;align-items:center;justify-content:center;">
-    <div
-      style="background:#fff;padding:30px 20px;border-radius:10px;max-width:350px;margin:100px auto;position:relative;">
-      <button onclick="document.getElementById('forgot-modal').style.display='none';"
-        style="position:absolute;top:10px;right:10px;background:none;border:none;font-size:20px;">&times;</button>
-      <h3 style="margin-bottom:15px;">Forgot Password</h3>
-      <?php if (!empty($forgot_error)): ?>
-        <div style="color:red;margin-bottom:10px;"> <?php echo htmlspecialchars($forgot_error); ?> </div>
-      <?php endif; ?>
-      <?php if (!empty($forgot_success)): ?>
-        <div style="color:green;margin-bottom:10px;"> <?php echo htmlspecialchars($forgot_success); ?> </div>
-      <?php endif; ?>
-      <form method="POST" action="">
-        <input type="text" name="forgot_email_or_phone" placeholder="Email or Phone Number"
-          style="width:100%;padding:10px;margin-bottom:10px;border-radius:5px;border:1px solid #ccc;" required>
-        <button type="submit" name="forgot_password_submit"
-          style="width:100%;background:#2A5C3D;color:#fff;padding:10px;border:none;border-radius:5px;">Send Reset
-          Link</button>
-      </form>
-    </div>
-  </div>
-
-  <div id="toast"
-    style="display:none;position:fixed;top:30px;right:30px;z-index:9999;min-width:250px;padding:16px 24px;border-radius:8px;font-size:1rem;box-shadow:0 2px 8px rgba(0,0,0,0.15);background:#2A5C3D;color:#fff;transition:all 0.3s;opacity:0;">
-  </div>
-  <script>
-    // Close modal on outside click
-    window.onclick = function (event) {
-      var modal = document.getElementById('forgot-modal');
-      if (event.target == modal) {
-        modal.style.display = "none";
-      }
+<script>
+function togglePw() {
+    const input = document.getElementById('password');
+    const icon  = document.getElementById('pwEye');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'fas fa-eye-slash';
+    } else {
+        input.type = 'password';
+        icon.className = 'fas fa-eye';
     }
+}
 
-    function showToast(message, type) {
-      var toast = document.getElementById('toast');
-      toast.textContent = message;
-      toast.style.background = type === 'success' ? '#2A5C3D' : (type === 'error' ? '#c00' : '#FFA726');
-      toast.style.color = '#fff';
-      toast.style.display = 'block';
-      toast.style.opacity = 1;
-      setTimeout(function () {
-        toast.style.opacity = 0;
-        setTimeout(function () { toast.style.display = 'none'; }, 400);
-      }, 4000);
-    }
+// Close forgot modal on backdrop click
+document.getElementById('forgotModal').addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('open');
+});
 
-    <?php if (!empty($toast_message)): ?>
-      document.addEventListener('DOMContentLoaded', function () {
-        showToast(<?php echo json_encode($toast_message); ?>, <?php echo json_encode($toast_type); ?>);
-      });
-    <?php endif; ?>
-  </script>
+// Show forgot modal if there was a forgot error/success
+<?php if ($forgot_error || $forgot_success): ?>
+document.getElementById('forgotModal').classList.add('open');
+<?php endif; ?>
+
+// Loading state on form submit
+document.querySelector('form').addEventListener('submit', function() {
+    const btn = document.getElementById('loginBtn');
+    btn.innerHTML = '<span style="width:16px;height:16px;border:2px solid rgba(255,255,255,0.4);border-top-color:white;border-radius:50%;animation:spin 0.7s linear infinite;display:inline-block;margin-right:8px;"></span> Signing in…';
+    btn.disabled = true;
+});
+</script>
 </body>
-
 </html>

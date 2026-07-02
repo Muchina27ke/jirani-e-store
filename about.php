@@ -1,98 +1,14 @@
-<!-- about.php -->
 <?php
 require_once __DIR__ . '/config/config.php';
-require_once __DIR__ . '/includes/Auth.php';
-require_once __DIR__ . '/includes/Navigation.php';
-$base_url = './';
-$auth = new Auth($conn);
-$currentUser = null;
-if ($auth->isLoggedIn()) {
-    $currentUser = $auth->getUser();
-}
-$navigation = new Navigation($conn, $currentUser, 'about');
+$pageTitle = 'About Us';
+$currentPage = 'about';
+$additionalCSS = [
+    'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css',
+    SITE_URL . 'css/About.css'
+];
+require_once __DIR__ . '/navbar.php';
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About Jirani - Local Marketplace</title>
-    <link rel="icon" type="image/jpeg" href="title_logo.jpg">
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="./css/About.css">
-    <!-- Footer CSS -->
-    <link rel="stylesheet" href="<?= $base_url ?>css/footer.css">
-    <style>
-        :root {
-            /* Primary Color Palette */
-            --jirani-primary: #2A5C3D;
-            /* Forest Green */
-            --jirani-secondary: #FFA726;
-            /* Warm Orange */
-            --jirani-white: #FFFFFF;
-            /* White */
-            --jirani-gray: #333333;
-            /* Dark Gray */
-        }
-
-        /* Base Elements */
-        body {
-            background-color: var(--jirani-white);
-            color: var(--jirani-gray);
-        }
-
-        .navbar {
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            background-color: var(--jirani-white) !important;
-        }
-
-        /* Text Elements */
-        .navbar-brand,
-        .nav-link {
-            color: var(--jirani-primary) !important;
-        }
-
-        h1,
-        h2,
-        h3 {
-            color: var(--jirani-primary);
-        }
-
-        /* Buttons */
-        .btn-jirani {
-            background-color: var(--jirani-primary);
-            border: none;
-            color: var(--jirani-white);
-        }
-
-        .btn-jirani:hover {
-            background-color: var(--jirani-secondary);
-            color: var(--jirani-gray);
-        }
-
-        /* Dropdowns */
-        .dropdown-menu {
-            background-color: var(--jirani-primary);
-            border: 1px solid var(--jirani-secondary);
-        }
-
-        .dropdown-item {
-            color: var(--jirani-white) !important;
-        }
-
-        .dropdown-item:hover {
-            background-color: var(--jirani-secondary) !important;
-        }
-    </style>
-</head>
-<body>
     <div class="container-fluid p-0">
-        <!-- Navbar -->
-         
-        <?php echo $navigation->renderCustomerNav(); ?>
 
        <!-- Hero Section -->
 <section class="about-hero">
@@ -441,13 +357,11 @@ $navigation = new Navigation($conn, $currentUser, 'about');
             ?>
         </div>
     </div>
+</section>
 
-        
-    </div>
+</div>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Custom JS -->
+<!-- Custom JS -->
     <script>
         // Animate team cards on scroll
         const observer = new IntersectionObserver((entries) => {
@@ -465,18 +379,6 @@ $navigation = new Navigation($conn, $currentUser, 'about');
             card.style.transition = 'all 0.5s ease-out';
             observer.observe(card);
         });
-
-        // Initialize tooltips
-        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-        const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
     </script>
 
-         <!-- Footer -->
-        <?php 
-
-            $base_url = './'; // Adjust based on your directory structure
-            include 'footer.php'; 
-        ?>
-</body>
-
-</html>
+<?php require_once __DIR__ . '/footer.php'; ?>

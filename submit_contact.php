@@ -32,6 +32,12 @@ function ensureContactsTableExists($db) {
             error_log("Failed to create contacts table: " . $db->error);
             return false;
         }
+    } else {
+        // Table exists, check if phone column exists
+        $columnCheck = $db->query("SHOW COLUMNS FROM `contacts` LIKE 'phone'");
+        if ($columnCheck && $columnCheck->num_rows == 0) {
+            $db->query("ALTER TABLE `contacts` ADD COLUMN `phone` VARCHAR(20) DEFAULT NULL AFTER `email`");
+        }
     }
     return true;
 }
@@ -44,11 +50,11 @@ if (!ensureContactsTableExists($db)) {
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Sanitize inputs
-    $name = filter_var($_POST['name'], FILTER_SANITIZE_STRING);
-    $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
+    $name = htmlspecialchars($_POST['name'] ?? '', ENT_QUOTES, 'UTF-8');
+    $email = filter_var($_POST['email'] ?? '', FILTER_SANITIZE_EMAIL);
     $phone_raw = preg_replace('/[^0-9]/', '', $_POST['phone'] ?? '');
-    $subject = filter_var($_POST['subject'], FILTER_SANITIZE_STRING);
-    $message = filter_var($_POST['message'], FILTER_SANITIZE_STRING);
+    $subject = htmlspecialchars($_POST['subject'] ?? '', ENT_QUOTES, 'UTF-8');
+    $message = htmlspecialchars($_POST['message'] ?? '', ENT_QUOTES, 'UTF-8');
 
     // Validate inputs
     $errors = [];

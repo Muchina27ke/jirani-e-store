@@ -61,61 +61,65 @@ ob_start();
 ?>
 
 <!-- Delivery Zones Management -->
-<div class="card">
-    <div class="card-header">
-        <h3 class="card-title">Delivery Zones</h3>
-        <div class="card-tools">
-            <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addZoneModal"
-                onclick="resetZoneForm()">
-                <i class="fas fa-plus"></i> Add Zone
-            </button>
-        </div>
-    </div>
-    <div class="card-body">
-        <div class="row">
-            <div class="col-md-8">
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0" style="font-family: var(--j-font-heading); font-weight: 700; color: var(--j-primary);">Delivery Zones</h1>
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addZoneModal"
+        onclick="resetZoneForm()" style="background: var(--j-primary); border-radius: 50px; font-weight: 600; padding: 8px 24px; border: none; box-shadow: 0 4px 6px rgba(99,102,241,0.2);">
+        <i class="fas fa-plus mr-2"></i> Add Zone
+    </button>
+</div>
+
+<div class="card shadow-sm border-0 mb-4" style="border-radius: var(--j-radius-lg); overflow: hidden;">
+    <div class="card-body p-0">
+        <div class="row m-0">
+            <div class="col-md-8 p-0 border-right">
                 <!-- Map Container -->
-                <div id="map" style="height: 500px; width: 100%;"></div>
+                <div id="map" style="height: 500px; width: 100%; border-bottom-left-radius: var(--j-radius-lg);"></div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-4 p-0 bg-white">
                 <!-- Zones List -->
-                <div class="table-responsive">
-                    <table class="table table-striped">
-                        <thead>
+                <div class="table-responsive" style="height: 500px; overflow-y: auto;">
+                    <table class="table table-hover mb-0 border-0">
+                        <thead style="background-color: rgba(99, 102, 241, 0.05); position: sticky; top: 0; z-index: 10;">
                             <tr>
-                                <th>Name</th>
-                                <th>Type</th>
-                                <th>Status</th>
-                                <th>Actions</th>
+                                <th class="border-0 px-4 py-3" style="font-weight: 600; color: #4b5563;">Name</th>
+                                <th class="border-0 px-4 py-3" style="font-weight: 600; color: #4b5563;">Type</th>
+                                <th class="border-0 px-4 py-3" style="font-weight: 600; color: #4b5563;">Status</th>
+                                <th class="border-0 px-4 py-3 text-right" style="font-weight: 600; color: #4b5563;">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php if (!empty($deliveryZones)): ?>
                                 <?php foreach ($deliveryZones as $zone): ?>
-                                    <tr>
-                                        <td><?php echo htmlspecialchars($zone['zone_name'] ?? $zone['name'] ?? 'Unnamed Zone'); ?></td>
-                                        <td><?php echo $zone['polygon_json'] ? 'Polygon' : (isset($zone['radius_km']) ? number_format($zone['radius_km'], 1) . ' km radius' : 'N/A'); ?>
+                                    <tr style="border-bottom: 1px solid rgba(0,0,0,0.05);">
+                                        <td class="px-4 py-3 align-middle font-weight-bold" style="color: var(--j-primary);"><?php echo htmlspecialchars($zone['zone_name'] ?? $zone['name'] ?? 'Unnamed Zone'); ?></td>
+                                        <td class="px-4 py-3 align-middle text-muted"><?php echo $zone['polygon_json'] ? 'Polygon' : (isset($zone['radius_km']) ? number_format($zone['radius_km'], 1) . ' km radius' : 'N/A'); ?>
                                         </td>
-                                        <td>
-                                            <span class="badge badge-<?php echo ($zone['is_active'] ?? 1) ? 'success' : 'danger'; ?>">
+                                        <td class="px-4 py-3 align-middle">
+                                            <span class="badge" style="padding: 6px 12px; border-radius: 50px; font-weight: 600; <?php echo ($zone['is_active'] ?? 1) ? 'background: rgba(16, 185, 129, 0.15); color: #059669;' : 'background: rgba(239, 68, 68, 0.15); color: #dc2626;'; ?>">
                                                 <?php echo $zone['is_active'] ? 'Active' : 'Inactive'; ?>
                                             </span>
                                         </td>
-                                        <td>
-                                            <button type="button" class="btn btn-info btn-sm"
-                                                onclick='editZone(<?php echo json_encode($zone); ?>)'>
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button type="button" class="btn btn-danger btn-sm"
-                                                onclick="confirmDeleteZone(<?php echo $zone['id']; ?>)">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
+                                        <td class="px-4 py-3 align-middle">
+                                            <div class="d-flex justify-content-end align-items-center" style="gap: 8px;">
+                                                <button type="button" class="btn btn-sm text-white"
+                                                    onclick='editZone(<?php echo json_encode($zone); ?>)' style="background-color: #007bff; border: none; border-radius: 6px; width: 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center;" title="Edit Zone">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-sm text-white"
+                                                    onclick="confirmDeleteZone(<?php echo $zone['id']; ?>)" style="background-color: #dc3545; border: none; border-radius: 6px; width: 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center;" title="Delete Zone">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
                             <?php else: ?>
                                 <tr>
-                                    <td colspan="4" class="text-center">No delivery zones defined yet.</td>
+                                    <td colspan="4" class="text-center px-4 py-5 text-muted">
+                                        <i class="fas fa-map-marked-alt fa-3x mb-3 d-block" style="opacity: 0.3;"></i>
+                                        No delivery zones defined yet.
+                                    </td>
                                 </tr>
                             <?php endif; ?>
                         </tbody>
